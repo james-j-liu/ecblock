@@ -1,0 +1,44 @@
+# ECBLock pipeline configuration
+
+corpus:
+  ecb_speeches_csv_url: "https://www.ecb.europa.eu/press/key/shared/data/all_ECB_speeches.csv"
+  start_year: 1997        # ECB founded 1998; euro 1999. Include EMI tail from 1997.
+  end_year: 2026
+
+judge:
+  provider: openrouter
+  model: "google/gemini-3.1-flash-lite"   # config string; swap for any OpenRouter model
+  validator_model: "anthropic/claude-haiku-4.5"  # cross-model check on a subset
+  max_excerpt_chars: 9000   # truncate long speeches to control token cost
+  temperature: 0.0
+  concurrency: 8
+
+tournament:
+  initial_mu: 50.0
+  initial_sigma: 8.333
+  target_appearances_per_speech: 30   # FedLock parity (=> ~15*N comparisons)
+  sigma_convergence: 2.0
+  pairing:
+    swiss_fraction: 0.6
+    uncertainty_fraction: 0.3
+    random_fraction: 0.1
+
+era_adjustment:
+  recenter_to: 50.0
+  period: quarter
+
+timeline:
+  gaussian_sigma_days: 45
+  sample_freq: weekly
+
+macro:
+  # euro-area analogues of FedLock's Core PCE / unemployment / GDP / VIX
+  series:
+    core_hicp: "ICP.M.U2.N.XEF000.4.ANR"        # HICP excl. energy & food, annual rate
+    unemployment: "LFSI.M.I9.S.UNEHRT.TOTAL0.15_74.T"
+    gdp_growth: "MNA.Q.Y.I9.W2.S1.S1.B.B1GQ._Z._Z._Z.EUR.LR.GY"
+    vstoxx: null   # fetched separately (STOXX/yfinance); ECB SDW has no VSTOXX
+
+proof_of_concept:
+  n_speeches: 50
+  appearances_per_speech: 15

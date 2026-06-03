@@ -22,15 +22,22 @@ CORPUS_PATH = PROCESSED / "corpus.jsonl"
 
 
 def load_all(use_cache: bool = True) -> list[Speech]:
+    # Each source is fetched independently and a failure in one (e.g. a transient
+    # network error from a single site) is logged and skipped rather than aborting
+    # the whole run - important for the unattended daily job.
+    sources = [
+        ("ECB Executive Board speeches", lambda: ecb_speeches.load()),
+        ("ECB media interviews", lambda: ecb_interviews.load(use_cache=use_cache)),
+        ("ECB council (statements, Q&A, accounts)", lambda: ecb_council.load(use_cache=use_cache)),
+        ("Euro-area NCB speeches (BIS)", lambda: ecb_ncb.load(use_cache=use_cache)),
+    ]
     speeches: list[Speech] = []
-    print("[1/4] ECB Executive Board speeches...")
-    speeches += ecb_speeches.load()
-    print("[2/4] ECB media interviews...")
-    speeches += ecb_interviews.load(use_cache=use_cache)
-    print("[3/4] ECB council (statements, Q&A, accounts)...")
-    speeches += ecb_council.load(use_cache=use_cache)
-    print("[4/4] Euro-area NCB speeches (BIS)...")
-    speeches += ecb_ncb.load(use_cache=use_cache)
+    for i, (name, fn) in enumerate(sources, 1):
+        print(f"[{i}/{len(sources)}] {name}...")
+        try:
+            speeches += fn()
+        except Exception as e:  # noqa: BLE001 - one bad source must not kill the run
+            print(f"    [warn] source '{name}' failed: {type(e).__name__}: {e}")
 
     seen: dict[str, Speech] = {}
     for s in speeches:

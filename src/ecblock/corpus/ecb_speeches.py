@@ -24,7 +24,10 @@ def download(force: bool = False) -> Path:
         return CSV_PATH
     url = cfg()["corpus"]["ecb_speeches_csv_url"]
     CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
-    r = requests.get(url, timeout=120)
+    # many of these servers reject the default python-requests UA (esp. from CI)
+    r = requests.get(url, headers={"User-Agent":
+                     "Mozilla/5.0 (compatible; ECBLock/1.0; +https://github.com/james-j-liu/ecblock)"},
+                     timeout=120)
     r.raise_for_status()
     CSV_PATH.write_bytes(r.content)
     return CSV_PATH

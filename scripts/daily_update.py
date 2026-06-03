@@ -76,52 +76,57 @@ def main():
         new.append(s)
     print(f"sources: {len(fresh)} loaders + {len(feeds)} feed items | {len(new)} new since last run")
 
-    corpus = existing
-    if new:
-        Translator().translate_all(new)        # non-English -> English
-        Classifier().classify_all(new)          # is_policy (council types auto-pass)
-        corpus = existing + new
-        save_corpus(corpus, CORPUS)
+    def make_pool(c):
+        return [s for s in c if s.is_policy and is_gc(s.speaker) and SINCE <= s.date <= today]
 
-    # 2) scoring pool: GC, policy-relevant, within the window
-    pool = [s for s in corpus if s.is_policy and is_gc(s.speaker) and SINCE <= s.date <= today]
-    anon = Anonymizer(build_roster([s.speaker for s in corpus]))
-    for s in pool:
-        if not s.text_anon:
-            s.text_anon = anon(s.text)
-    macro = MacroContext()
+    # 2-4) ingest + score the new speeches. Wrapped so that an API failure (e.g.
+    #      OpenRouter out of credits -> 402, or a network blip) does NOT fail the
+    #      whole job/deploy: we log it and fall back to redeploying the existing
+    #      scored data; the new speeches are retried on the next run.
+    corpus, scored_ok = existing, True
+    try:
+        if new:
+            Translator().translate_all(new)        # non-English -> English
+            Classifier().classify_all(new)          # is_policy (council types auto-pass)
+            corpus = existing + new
+            save_corpus(corpus, CORPUS)
 
-    new_ids = {s.id for s in new}
-    n_new_pool = sum(1 for s in pool if s.id in new_ids)
-    print(f"pool {len(pool)} GC policy records | {n_new_pool} new to score")
+        pool = make_pool(corpus)
+        anon = Anonymizer(build_roster([s.speaker for s in corpus]))
+        for s in pool:
+            if not s.text_anon:
+                s.text_anon = anon(s.text)
+        macro = MacroContext()
+        new_ids = {s.id for s in new}
+        n_new_pool = sum(1 for s in pool if s.id in new_ids)
+        print(f"pool {len(pool)} GC policy records | {n_new_pool} new to score")
 
-    if args.dry_run:
-        from run_full import MockDirectScorer, MockJudge
-        judge, scorer = MockJudge(), MockDirectScorer()
-    else:
-        from ecblock.judge.direct import DirectScorer
-        from ecblock.judge.openrouter import Judge
-        judge, scorer = Judge(), DirectScorer()
+        if args.dry_run:
+            from run_full import MockDirectScorer, MockJudge
+            judge, scorer = MockJudge(), MockDirectScorer()
+        else:
+            from ecblock.judge.direct import DirectScorer
+            from ecblock.judge.openrouter import Judge
+            judge, scorer = Judge(), DirectScorer()
 
-    # 3) incremental pairwise (resume) — any under-served speech (new this run, or
-    #    left unscored by an interrupted earlier run) draws the new comparisons
-    under_served = any(s.n_comparisons < args.appearances for s in pool)
-    if n_new_pool or under_served:
-        run_tournament(pool, judge, appearances_per_speech=args.appearances,
-                       macro=macro, resume=True)
+        if n_new_pool or any(s.n_comparisons < args.appearances for s in pool):
+            run_tournament(pool, judge, appearances_per_speech=args.appearances,
+                           macro=macro, resume=True)
+        to_direct = [s for s in pool if s.direct_score is None]
+        if to_direct:
+            scorer.score_all(to_direct, macro, concurrency=6)
+        save_corpus(corpus, CORPUS)   # persist classifications, ratings, direct scores
+    except Exception as e:  # noqa: BLE001
+        scored_ok = False
+        print(f"[warn] update/scoring failed: {type(e).__name__}: {e}")
+        print("[warn] redeploying existing scored data; new speeches retried next run")
+        corpus = load_corpus(CORPUS)
 
-    # 4) incremental direct — score only speeches without one
-    to_direct = [s for s in pool if s.direct_score is None]
-    if to_direct:
-        scorer.score_all(to_direct, macro, concurrency=6)
-
-    if new or to_direct:
-        save_corpus(corpus, CORPUS)  # persist classifications, ratings, direct scores
-
-    # 5) rebuild outputs
+    # 5) always rebuild outputs so the site redeploys (even on a degraded run)
+    pool = make_pool(corpus)
     era_adjust(pool)
     meta = write_data_json(pool, args.out)
-    print(f"wrote {args.out}: {meta['n_speeches']} speeches")
+    print(f"wrote {args.out}: {meta['n_speeches']} speeches (scored_ok={scored_ok})")
     subprocess.run([sys.executable, str(ROOT / "scripts" / "build_macro.py")], check=False)
     print("daily update complete")
 

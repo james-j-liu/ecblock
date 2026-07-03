@@ -27,9 +27,10 @@ from ecblock.roster_gc import is_gc
 from ecblock.schema import load_corpus, save_corpus
 from ecblock.tournament.engine import Tournament
 
+import datetime
 CORPUS = PROCESSED / "corpus.jsonl"
 LOG = PROCESSED / "tournament_log.jsonl"
-SINCE, UNTIL = "2010-05-28", "2026-05-28"
+SINCE, UNTIL = "2010-05-28", datetime.date.today().isoformat()
 
 
 def main():
@@ -42,15 +43,9 @@ def main():
     corpus = load_corpus(CORPUS)
     pool = [s for s in corpus if s.is_policy and is_gc(s.speaker) and SINCE <= s.date <= UNTIL]
     by_id = {s.id: s for s in pool}
-    print(f"Pool: {len(pool)} GC policy records")
+    print(f"Pool: {len(pool)} GC policy records", flush=True)
 
-    roster = build_roster([s.speaker for s in corpus])
-    anon = Anonymizer(roster)
-    for s in pool:
-        if not s.text_anon:
-            s.text_anon = anon(s.text)
-
-    # ---- pairwise ratings from the full log (free) ----
+    # ---- pairwise ratings from the full log (free; needs no anonymised text) ----
     tcfg = cfg()["tournament"]
     tour = Tournament(list(by_id), initial_mu=tcfg["initial_mu"],
                       initial_sigma=tcfg["initial_sigma"], seed=args.seed)
@@ -78,10 +73,15 @@ def main():
     # only score speeches that don't have one yet ----
     new_to_score = [s for s in pool if s.direct_score is None]
     print(f"Direct: have {len(pool) - len(new_to_score)} from corpus, "
-          f"scoring {len(new_to_score)} new")
+          f"scoring {len(new_to_score)} new", flush=True)
 
     macro = MacroContext()
     if new_to_score:
+        # anonymise ONLY the records we will score (not the whole pool)
+        anon = Anonymizer(build_roster([s.speaker for s in corpus]))
+        for s in new_to_score:
+            if not s.text_anon:
+                s.text_anon = anon(s.text[:20000])   # cap: scorer only uses an excerpt
         if args.dry_run:
             from run_full import MockDirectScorer
             MockDirectScorer().score_all(new_to_score, macro)

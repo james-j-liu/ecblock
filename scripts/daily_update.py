@@ -50,6 +50,8 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="use mock scorers (no API spend)")
     ap.add_argument("--feeds-only", action="store_true",
                     help="skip the ECB/BIS loaders; only poll the NCB feeds")
+    ap.add_argument("--no-bis", action="store_true",
+                    help="skip the 122 MB BIS source (ECB FoeDB content still fetched)")
     ap.add_argument("--feed-since", default=None,
                     help="ISO date lower bound for feed items (default: last 60 days)")
     ap.add_argument("--out", default="site/data.json")
@@ -62,7 +64,8 @@ def main():
     # 1) fetch latest from all automated sources + NCB feeds (RSS/listings), keep
     #    genuinely new records. Dedup by id and by (speaker, date, source_type) so a
     #    speech picked up early from an NCB feed isn't re-added when BIS catches up.
-    fresh = [] if args.feeds_only else assemble.load_all(use_cache=False)
+    fresh = [] if args.feeds_only else assemble.load_all(
+        use_cache=False, skip=("bis",) if args.no_bis else ())
     feeds = ncb_feeds.poll_all(since=args.feed_since)
     seen_keys = {(canon(s.speaker), s.date, s.source_type) for s in existing}
     new = []
@@ -109,7 +112,7 @@ def main():
             from ecblock.judge.openrouter import Judge
             judge, scorer = Judge(), DirectScorer()
 
-        if n_new_pool or any(s.n_comparisons < args.appearances for s in pool):
+        if n_new_pool or any(s.mu is None for s in pool):
             run_tournament(pool, judge, appearances_per_speech=args.appearances,
                            macro=macro, resume=True)
         to_direct = [s for s in pool if s.direct_score is None]

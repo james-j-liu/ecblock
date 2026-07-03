@@ -21,18 +21,20 @@ from . import ecb_council, ecb_interviews, ecb_ncb, ecb_speeches
 CORPUS_PATH = PROCESSED / "corpus.jsonl"
 
 
-def load_all(use_cache: bool = True) -> list[Speech]:
+def load_all(use_cache: bool = True, skip: tuple = ()) -> list[Speech]:
     # Each source is fetched independently and a failure in one (e.g. a transient
     # network error from a single site) is logged and skipped rather than aborting
-    # the whole run - important for the unattended daily job.
+    # the whole run - important for the unattended daily job. `skip` drops sources
+    # by key (e.g. ("bis",) to avoid re-processing the 122 MB BIS file).
     sources = [
-        ("ECB Executive Board speeches", lambda: ecb_speeches.load()),
-        ("ECB media interviews", lambda: ecb_interviews.load(use_cache=use_cache)),
-        ("ECB council (statements, Q&A, accounts)", lambda: ecb_council.load(use_cache=use_cache)),
-        ("Euro-area NCB speeches (BIS)", lambda: ecb_ncb.load(use_cache=use_cache)),
+        ("speeches", "ECB Executive Board speeches", lambda: ecb_speeches.load()),
+        ("interviews", "ECB media interviews", lambda: ecb_interviews.load(use_cache=use_cache)),
+        ("council", "ECB council (statements, Q&A, accounts)", lambda: ecb_council.load(use_cache=use_cache)),
+        ("bis", "Euro-area NCB speeches (BIS)", lambda: ecb_ncb.load(use_cache=use_cache)),
     ]
+    sources = [s for s in sources if s[0] not in skip]
     speeches: list[Speech] = []
-    for i, (name, fn) in enumerate(sources, 1):
+    for i, (key, name, fn) in enumerate(sources, 1):
         print(f"[{i}/{len(sources)}] {name}...")
         try:
             speeches += fn()

@@ -7,7 +7,7 @@ corpus:
 
 judge:
   provider: openrouter
-  model: "google/gemini-3.1-flash-lite"   # config string; swap for any OpenRouter model
+  model: "google/gemini-2.5-flash-lite"   # cheaper (~$0.10/$0.40 vs 3.1-lite's $0.25/$1.50)
   validator_model: "anthropic/claude-haiku-4.5"  # cross-model check on a subset
   max_excerpt_chars: 9000   # truncate long speeches to control token cost
   temperature: 0.0

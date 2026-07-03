@@ -96,11 +96,16 @@ def run_tournament(
         )
         return a_id, b_id, res
 
-    # Run until the least-served speech reaches the appearance target (with a safety
-    # cap). This works for both a full run (all speeches start at 0) and a daily
-    # incremental resume (only the new high-uncertainty speeches are under target).
-    cap = appearances * len(ids)
-    while min(tour.n_comp.values(), default=0) < appearances and done < cap:
+    # Budget the comparisons to the GENUINELY new speeches (those with no logged
+    # comparisons after the replay): ~appearances/2 comparisons per new speech. This
+    # gives a fresh full run its full ~15*N budget (all speeches new) and keeps a daily
+    # increment small and always-terminating - it never tries to re-converge speeches
+    # that already carry a rating (which, if a few can't reach the target, would loop
+    # forever dumping comparisons onto the rest).
+    new_count = sum(1 for c in tour.n_comp.values() if c == 0)
+    budget = done + appearances * new_count // 2
+    cap = done + appearances * len(ids)          # hard safety bound
+    while done < budget and done < cap:
         n = batch
         pairs = tour.select_pairs(n, tcfg["pairing"])
         with ThreadPoolExecutor(max_workers=concurrency) as ex:

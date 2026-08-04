@@ -198,6 +198,11 @@ function passMembership(n,mode){ return mode==="all"?true:mode==="current"?isCur
 const SOURCE_LABELS={mp_statement:"Monetary policy statement", mp_qa:"Press conference Q&A",
   mp_account:"Monetary policy account", speech:"Speech", interview:"Interview"};
 const TYPE_ORDER=["mp_statement","mp_qa","mp_account","speech","interview"];
+// distinct marker glyphs so monetary-policy meeting output stands out from ordinary
+// speeches/interviews on the timeline: statement = square, Q&A = diamond, account = triangle.
+const SYMBOL_FOR={mp_statement:"square", mp_qa:"diamond", mp_account:"triangle-up",
+  speech:"circle", interview:"circle"};
+const MP_TYPES=new Set(["mp_statement","mp_qa","mp_account"]);
 function fillSpeakerTypes(){
   const spk=document.getElementById("sp-speaker").value;
   const present=[...new Set(DATA.filter(d=>dispName(d)===spk).map(d=>d.st))];
@@ -267,8 +272,11 @@ function renderTimeline(){
   const spk=document.getElementById("tl-speaker").value;
   const rows=DATA.filter(d=>(!spk||dispName(d)===spk)&&has(d,ykey));
   const trace={x:rows.map(d=>d.d),y:rows.map(d=>norm(d[ykey])),mode:"markers",type:"scatter",
-    marker:{size:6,color:rows.map(d=>colorFor(d[ykey])),opacity:.6},
-    text:rows.map(d=>`${dispName(d)}<br>${d.d}<br>${d.tt}<br>score ${fmtScore(d[ykey])}`),hoverinfo:"text",name:"speeches"};
+    marker:{size:rows.map(d=>MP_TYPES.has(d.st)?9:6),
+      symbol:rows.map(d=>SYMBOL_FOR[d.st]||"circle"),
+      color:rows.map(d=>colorFor(d[ykey])),opacity:.6,
+      line:{color:"#fff",width:rows.map(d=>MP_TYPES.has(d.st)?1:0)}},
+    text:rows.map(d=>`${dispName(d)}<br>${d.d}<br>${SOURCE_LABELS[d.st]||d.st}<br>${d.tt}<br>score ${fmtScore(d[ykey])}`),hoverinfo:"text",name:"speeches"};
   const pts=rows.map(d=>({x:new Date(d.d),y:norm(d[ykey])})).sort((a,b)=>a.x-b.x);
   const tr=gaussianTrend(pts);
   const trend={x:tr.x,y:tr.y,mode:"lines",type:"scatter",line:{color:"#fff",width:2},name:"Hawkishness trend"};
@@ -361,10 +369,14 @@ function renderSpeaker(){
   const rows=speakerTypeRows(DATA.filter(d=>dispName(d)===spk&&has(d,ak)))
     .sort((a,b)=>a.d<b.d?-1:1);
   const tip=d=>method()==="direct"
-    ? `${d.d}<br>${d.tt}<br>adj ${fmtScore(d[ak])} (raw ${fmtScore(d[rk])})`
-    : `${d.d}<br>${d.tt}<br>adj ${fmtScore(d[ak])} (raw ${fmtScore(d[rk])}, n=${d.n})`;
+    ? `${d.d}<br>${SOURCE_LABELS[d.st]||d.st}<br>${d.tt}<br>adj ${fmtScore(d[ak])} (raw ${fmtScore(d[rk])})`
+    : `${d.d}<br>${SOURCE_LABELS[d.st]||d.st}<br>${d.tt}<br>adj ${fmtScore(d[ak])} (raw ${fmtScore(d[rk])}, n=${d.n})`;
   const trace={x:rows.map(d=>d.d),y:rows.map(d=>norm(d[ak])),mode:"markers+lines",type:"scatter",
-    marker:{size:7,color:rows.map(d=>colorFor(d[ak]))},line:{color:MUT,width:1},
+    marker:{size:rows.map(d=>MP_TYPES.has(d.st)?10:7),
+      symbol:rows.map(d=>SYMBOL_FOR[d.st]||"circle"),
+      color:rows.map(d=>colorFor(d[ak])),
+      line:{color:"#fff",width:rows.map(d=>MP_TYPES.has(d.st)?1:0)}},
+    line:{color:MUT,width:1},
     text:rows.map(tip),hoverinfo:"text"};
   const Y=Math.ceil(Math.max(6,...rows.map(d=>Math.abs(norm(d[ak]))||0)));
   const lay=baseLayout();

@@ -27,7 +27,9 @@ from ..schema import ST_SPEECH, Speech
 
 csv.field_size_limit(10_000_000)
 
-BIS_ZIP = "https://www.bis.org/speeches/speeches.zip"
+# Full-history bulk file (moved in 2026; the old /speeches/speeches.zip is 404). It
+# lags by months, so it is for full rebuilds only - daily updates use bis_live.
+BIS_ZIP = "https://www.bis.org/pages/download-central-bankers-speeches/speeches.zip"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
 CACHE = RAW / "bis"
@@ -62,9 +64,21 @@ _NCB_RE = {inst: re.compile("|".join(re.escape(p) for p in pats))
 _WS = re.compile(r"\s+")
 
 
+# "Address by Mr X, Governor of the Bank of Italy, at the ... National Bank of
+# Ukraine ..." - only the speaker's own affiliation clause (between the name and
+# the venue) says who they work for; the venue often names another central bank.
+_AFFIL = re.compile(r"\bby\s+(?:(?:Mr|Ms|Mrs|Dr|Prof|Professor)\.?\s+)?[^,]{2,60},\s*(.+?)"
+                    r"(?:,\s*(?:at|in|on|before|to|during|for|via)\b|$)", re.S)
+_ECB_AFFIL = re.compile(r"European Central Bank|\bECB\b")
+
+
 def _institution(description: str) -> str | None:
+    m = _AFFIL.search(description or "")
+    affil = m.group(1) if m else (description or "")
+    if _ECB_AFFIL.search(affil):
+        return None     # ECB Executive Board: covered by the ECB's own sources
     for inst, rx in _NCB_RE.items():
-        if rx.search(description):
+        if rx.search(affil):
             return inst
     return None
 

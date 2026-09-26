@@ -20,7 +20,7 @@ except Exception:
 
 from ecblock.config import PROCESSED, cfg
 from ecblock.macro.euro_macro import MacroContext
-from ecblock.output.build_data import _jitter, era_adjust, write_data_json
+from ecblock.output.build_data import era_adjust, write_data_json
 from ecblock.process.anonymize import Anonymizer
 from ecblock.process.roster import build_roster
 from ecblock.roster_gc import is_gc
@@ -77,17 +77,16 @@ def main():
 
     macro = MacroContext()
     if new_to_score:
-        # anonymise ONLY the records we will score (not the whole pool)
+        # the scorer anonymises lazily - only the records it scores
         anon = Anonymizer(build_roster([s.speaker for s in corpus]))
-        for s in new_to_score:
-            if not s.text_anon:
-                s.text_anon = anon(s.text[:20000])   # cap: scorer only uses an excerpt
         if args.dry_run:
             from run_full import MockDirectScorer
+            for s in new_to_score:
+                anon.text_of(s)
             MockDirectScorer().score_all(new_to_score, macro)
         else:
             from ecblock.judge.direct import DirectScorer
-            DirectScorer().score_all(new_to_score, macro, concurrency=6)
+            DirectScorer().score_all(new_to_score, macro, concurrency=6, anonymizer=anon)
             save_corpus(corpus, CORPUS)   # persist new direct scores
 
     era_adjust(pool)

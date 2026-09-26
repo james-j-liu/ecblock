@@ -72,7 +72,17 @@ def _get(sess, url, *, as_json=True, retries=4):
     return None
 
 
+_MEMO: dict[bool, list[PubRecord]] = {}
+
+
 def fetch_records(use_cache: bool = True) -> list[PubRecord]:
+    # several loaders (interviews, council, key) share one index per process
+    if use_cache not in _MEMO:
+        _MEMO[use_cache] = _fetch_records(use_cache)
+    return _MEMO[use_cache]
+
+
+def _fetch_records(use_cache: bool) -> list[PubRecord]:
     CACHE.mkdir(parents=True, exist_ok=True)
     sess = _session()
 
@@ -132,6 +142,28 @@ def fetch_records(use_cache: bool = True) -> list[PubRecord]:
 
 def filter_by_path(records: list[PubRecord], prefix: str) -> list[PubRecord]:
     return [r for r in records if r.path.startswith(prefix)]
+
+
+def fetch_texts(recs: list[PubRecord], cache_dir, use_cache: bool,
+                concurrency: int = 8, desc: str = "") -> list[tuple[PubRecord, str]]:
+    """(record, page text) for each record, via a per-id text cache."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    from tqdm import tqdm
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    sess = _session()
+
+    def get(rec):
+        f = cache_dir / f"{rec.id}.txt"
+        if use_cache and f.exists():
+            return rec, f.read_text(encoding="utf-8")
+        txt = fetch_text(rec.url, sess)
+        if txt:
+            f.write_text(txt, encoding="utf-8")
+        return rec, txt
+
+    with ThreadPoolExecutor(max_workers=concurrency) as ex:
+        return list(tqdm(ex.map(get, recs), total=len(recs), desc=desc, disable=not recs))
 
 
 # ---- text extraction from an ECB publication HTML page ----

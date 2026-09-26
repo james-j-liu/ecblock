@@ -28,6 +28,7 @@ def run_tournament(
     seed: int = 0,
     concurrency: int | None = None,
     resume: bool = False,
+    anonymizer=None,
 ) -> Tournament:
     tcfg = cfg()["tournament"]
     jcfg = cfg()["judge"]
@@ -45,6 +46,10 @@ def run_tournament(
     )
     macro_str = {sid: macro.string(by_id[sid].date) for sid in ids}
     rng = random.Random(seed)
+    if anonymizer is None:
+        from ..process.anonymize import Anonymizer
+        from ..process.roster import build_roster
+        anonymizer = Anonymizer(build_roster([s.speaker for s in speeches]))
 
     total_comparisons = appearances * len(ids) // 2
     log_path = Path(log_path)
@@ -90,9 +95,10 @@ def run_tournament(
             a_id, b_id = i, j
         else:
             a_id, b_id = j, i
+        # anonymised lazily: only speeches actually drawn into a comparison pay for it
         res = judge.compare(
-            by_id[a_id].text_anon or by_id[a_id].text, macro_str[a_id],
-            by_id[b_id].text_anon or by_id[b_id].text, macro_str[b_id],
+            anonymizer.text_of(by_id[a_id]), macro_str[a_id],
+            anonymizer.text_of(by_id[b_id]), macro_str[b_id],
         )
         return a_id, b_id, res
 

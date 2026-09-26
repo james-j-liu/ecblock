@@ -17,6 +17,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from ..roster_gc import canon
 from ..schema import Speech
 
 # LLMs scoring 0-100 cluster hard on multiples of 5/10 (verified across 4 models),
@@ -93,7 +94,7 @@ def write_data_json(speeches: list[Speech], path: str | Path) -> dict:
             "ds": round(float(s.direct_score) + _jitter(s.id), 2) if s.direct_score is not None else None,
             "dsa": round((s.direct_adj if s.direct_adj is not None else float(s.direct_score)) + _jitter(s.id), 2)
                    if s.direct_score is not None else None,
-            "a": s.speaker,
+            "a": canon(s.speaker),     # merge spelling variants into one person
             "tt": s.title[:160],
             "st": s.source_type,
             "wc": s.word_count,

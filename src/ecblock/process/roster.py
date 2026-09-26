@@ -48,7 +48,11 @@ TITLES = [
 
 
 def build_roster(corpus_speakers: list[str]) -> list[str]:
-    names = set(SEED_OFFICIALS)
+    # every Governing Council member (live-synced), not just people who already
+    # have speeches in the corpus - otherwise a governor with no records of their
+    # own (e.g. a new appointee) is named verbatim inside everyone else's texts
+    from ..roster_gc import CURRENT_GC, FORMER_GC
+    names = set(SEED_OFFICIALS) | CURRENT_GC | FORMER_GC
     for s in corpus_speakers:
         if s and s != "ECB council":
             names.add(s)

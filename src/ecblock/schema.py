@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Iterator, Optional
 
@@ -39,7 +39,7 @@ class Speech:
     translated: bool = False
     word_count: int = 0
     is_policy: Optional[bool] = None      # set by classifier
-    text_anon: str = ""                   # set by anonymizer
+    text_anon: str = ""                   # in-memory cache only; never saved (see save_corpus)
 
     # pairwise-tournament outputs (filled later)
     mu: Optional[float] = None
@@ -71,11 +71,16 @@ class Speech:
 
 
 def save_corpus(speeches: list[Speech], path: str | Path) -> None:
+    # text_anon is derived (Anonymizer.text_of recomputes it on demand) and would
+    # double the file - which is committed daily and must stay under GitHub's 100 MiB
+    # per-file limit - so it is dropped on save.
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
         for s in speeches:
-            f.write(json.dumps(asdict(s), ensure_ascii=False) + "\n")
+            d = asdict(s)
+            d["text_anon"] = ""
+            f.write(json.dumps(d, ensure_ascii=False) + "\n")
 
 
 def load_corpus(path: str | Path) -> list[Speech]:

@@ -10,3 +10,4 @@ tenacity==9.0.0
 tqdm==4.67.1
 langdetect==1.0.9
 trafilatura==2.0.0
+pypdf>=5.0

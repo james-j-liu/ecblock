@@ -16,25 +16,32 @@ import collections
 
 from ..config import PROCESSED
 from ..schema import Speech, save_corpus
-from . import ecb_council, ecb_interviews, ecb_ncb, ecb_speeches
+from . import ecb_council, ecb_interviews, ecb_key, ecb_ncb, ecb_speeches
 
 CORPUS_PATH = PROCESSED / "corpus.jsonl"
 
 
-def load_all(use_cache: bool = True, skip: tuple = ()) -> list[Speech]:
+def load_all(use_cache: bool = True, skip: tuple = (),
+             known_urls: set[str] = frozenset()) -> list[Speech]:
     # Each source is fetched independently and a failure in one (e.g. a transient
     # network error from a single site) is logged and skipped rather than aborting
     # the whole run - important for the unattended daily job. `skip` drops sources
-    # by key (e.g. ("bis",) to avoid re-processing the 122 MB BIS file).
+    # by key (daily runs skip "bis", the months-lagged 130 MB bulk file, in favour
+    # of bis_live). `known_urls` lets page-per-record sources skip what we have.
     sources = [
-        ("speeches", "ECB Executive Board speeches", lambda: ecb_speeches.load()),
-        ("interviews", "ECB media interviews", lambda: ecb_interviews.load(use_cache=use_cache)),
-        ("council", "ECB council (statements, Q&A, accounts)", lambda: ecb_council.load(use_cache=use_cache)),
-        ("bis", "Euro-area NCB speeches (BIS)", lambda: ecb_ncb.load(use_cache=use_cache)),
+        ("speeches", "ECB Executive Board speeches (CSV)",
+         lambda: ecb_speeches.load(force_download=not use_cache)),
+        ("key", "ECB Executive Board speeches (recent, FoeDB)",
+         lambda: ecb_key.load(use_cache=use_cache, known_urls=known_urls)),
+        ("interviews", "ECB media interviews",
+         lambda: ecb_interviews.load(use_cache=use_cache, known_urls=known_urls)),
+        ("council", "ECB council (statements, Q&A, accounts)",
+         lambda: ecb_council.load(use_cache=use_cache, known_urls=known_urls)),
+        ("bis", "Euro-area NCB speeches (BIS bulk)", lambda: ecb_ncb.load(use_cache=use_cache)),
     ]
     sources = [s for s in sources if s[0] not in skip]
     speeches: list[Speech] = []
-    for i, (key, name, fn) in enumerate(sources, 1):
+    for i, (_key, name, fn) in enumerate(sources, 1):
         print(f"[{i}/{len(sources)}] {name}...")
         try:
             speeches += fn()

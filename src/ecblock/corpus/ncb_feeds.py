@@ -122,8 +122,8 @@ FEEDS: list[NCBFeed] = [
             link_re=r'href="(/en/[^"]*?news/\d{4,6}-[^"?#]+)"'),
     # governor "keyword" page lists all his items; his speeches/interviews carry his
     # name in the slug (admin press releases don't), so the name filter keeps the right ones
-    NCBFeed("EE", "Eesti Pank", "listing", "https://www.eestipank.ee/en/teemad/madis-muller",
-            {r"muller": "Madis Müller"}, link_re=r'href="(/en/press/[^"?#]+)"'),
+    NCBFeed("EE", "Eesti Pank", "listing", "https://www.eestipank.ee/en/teemad/ulo-kaasik",
+            {r"kaasik": "Ülo Kaasik"}, link_re=r'href="(/en/press/[^"?#]+)"'),
     NCBFeed("BG", "Bulgarian National Bank", "rss",
             "https://www.bnb.bg/AboutUs/PressOffice/PORSS/index.htm?getRSS=1&lang=EN&cat=2",
             {r"radev": "Dimitar Radev"}),

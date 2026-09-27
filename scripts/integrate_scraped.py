@@ -3,7 +3,9 @@
 Dedups the scraped records against the existing corpus (by URL and by
 speaker+date+title), appends the new ones, classifies ONLY the new records for
 monetary-policy relevance, and reports the counts that will enter the tournament.
-Cheap step (classification only); the scoring spend happens in score_increment.py.
+Cheap step (classification only). The merged records are unscored, so the next
+daily_update.py run scores them (it treats any pool record without a rating as
+new, and tops each up to its full set of comparisons).
 """
 from __future__ import annotations
 

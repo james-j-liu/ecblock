@@ -8,8 +8,10 @@ the rankings while still being scored per-document in the tournament.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
+import zlib
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Iterator, Optional
@@ -70,17 +72,38 @@ class Speech:
         return self.speaker == ECB_COUNCIL or self.source_type in COUNCIL_TYPES
 
 
-def save_corpus(speeches: list[Speech], path: str | Path) -> None:
+# Long texts are stored compressed (zlib, then base64 so the file stays JSONL),
+# keeping the daily-committed file well inside GitHub's 100 MB per-file limit.
+# zlib is deterministic, so a record that has not changed is byte-identical on
+# every save and git's daily deltas stay as small as they were with plain text.
+_COMPRESS_OVER = 2000
+
+
+def _record(s: "Speech") -> dict:
+    d = asdict(s)
     # text_anon is derived (Anonymizer.text_of recomputes it on demand) and would
-    # double the file - which is committed daily and must stay under GitHub's 100 MiB
-    # per-file limit - so it is dropped on save.
+    # double the file, so it is dropped on save
+    d["text_anon"] = ""
+    if len(d["text"]) > _COMPRESS_OVER:
+        d["text_z"] = base64.b64encode(zlib.compress(d["text"].encode("utf-8"), 9)).decode("ascii")
+        d["text"] = ""
+    return d
+
+
+def _from_json(line: str) -> "Speech":
+    rec = json.loads(line)
+    packed = rec.pop("text_z", None)
+    if packed:
+        rec["text"] = zlib.decompress(base64.b64decode(packed)).decode("utf-8")
+    return Speech(**rec)
+
+
+def save_corpus(speeches: list[Speech], path: str | Path) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
         for s in speeches:
-            d = asdict(s)
-            d["text_anon"] = ""
-            f.write(json.dumps(d, ensure_ascii=False) + "\n")
+            f.write(json.dumps(_record(s), ensure_ascii=False) + "\n")
 
 
 def load_corpus(path: str | Path) -> list[Speech]:
@@ -90,7 +113,7 @@ def load_corpus(path: str | Path) -> list[Speech]:
         for line in f:
             line = line.strip()
             if line:
-                out.append(Speech(**json.loads(line)))
+                out.append(_from_json(line))
     return out
 
 
@@ -99,4 +122,4 @@ def iter_corpus(path: str | Path) -> Iterator[Speech]:
         for line in f:
             line = line.strip()
             if line:
-                yield Speech(**json.loads(line))
+                yield _from_json(line)

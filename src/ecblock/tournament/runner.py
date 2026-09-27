@@ -123,31 +123,26 @@ def run_tournament(
     # increment small and always-terminating - it never tries to re-converge speeches
     # that already carry a rating (which, if a few can't reach the target, would loop
     # forever dumping comparisons onto the rest).
-    new_count = sum(1 for c in tour.n_comp.values() if c == 0)
-    budget = done + appearances * new_count // 2
-    if min_total:
-        budget = max(budget, min_total)
-    cap = max(done, min_total or 0) + appearances * len(ids)   # hard safety bound
-    if max_new is not None:
-        budget = min(budget, done + max_new)
-    while done < budget and done < cap:
-        n = batch
-        pairs = tour.select_pairs(n, tcfg["pairing"])
+    state = {"done": done, "failures": 0, "consecutive": 0}
+
+    def run_pairs(pairs) -> list[tuple[str, str]]:
+        """Judge and record a batch of pairs; returns the pairs actually recorded."""
+        recorded = []
         with ThreadPoolExecutor(max_workers=concurrency) as ex:
             futs = [ex.submit(judge_pair, p) for p in pairs]
             for fut in as_completed(futs):
                 try:
                     a_id, b_id, res = fut.result()
                 except Exception as e:  # exhausted retries on this pair -> skip
-                    failures += 1
-                    consecutive_failures += 1
-                    if consecutive_failures >= 200:
+                    state["failures"] += 1
+                    state["consecutive"] += 1
+                    if state["consecutive"] >= 200:
                         logf.close(); pbar.close()
                         raise RuntimeError(
-                            f"Aborting: {consecutive_failures} consecutive judge "
+                            f"Aborting: {state['consecutive']} consecutive judge "
                             f"failures (API likely down). Last error: {e!r}")
                     continue
-                consecutive_failures = 0
+                state["consecutive"] = 0
                 w = res.get("winner")
                 if w == "A":
                     tour.record(a_id, b_id, drawn=drawn(res))
@@ -157,10 +152,51 @@ def run_tournament(
                     continue  # unparseable -> skip, don't corrupt ratings
                 logf.write(json.dumps({"a": a_id, "b": b_id, **res}) + "\n")
                 logf.flush()
-                done += 1
+                state["done"] += 1
                 pbar.update(1)
-        if tour.max_sigma() < sigma_target and tour.mean_appearances() >= appearances:
-            break
+                recorded.append((a_id, b_id))
+        return recorded
+
+    # Daily increment. The speeches that need comparisons are a handful in a pool of
+    # ~2,500, so drawing pairs from the whole pool (the general loop below) put each
+    # new speech in only a few of "its" 15 comparisons. Instead each under-sampled
+    # speech is paired directly, one comparison per round, against a settled speech
+    # rated near it NOW — so its partners follow its rating as it moves — until it
+    # has appearances/2 appearances. Only when such speeches are a minority: a fresh
+    # full run (everything new, nothing settled) takes the general loop.
+    floor = tcfg.get("min_appearances", 10)
+    goal = appearances // 2
+    need = {sid: goal - tour.n_comp[sid] for sid in ids if tour.n_comp[sid] < floor}
+    if not min_total and need and len(need) < len(ids) // 2:
+        tries = {sid: 0 for sid in need}
+        allowance = max_new if max_new is not None else sum(need.values())
+        while need and state["done"] - done < allowance:
+            pairs = [(sid, j) for sid in list(need)[: allowance - (state["done"] - done)]
+                     if (j := tour.settled_partner(sid, need))]
+            if not pairs:
+                break
+            for sid, _ in pairs:
+                tries[sid] += 1
+            for a_id, b_id in run_pairs(pairs):
+                for sid in (a_id, b_id):
+                    if sid in need:
+                        need[sid] -= 1
+            for sid in list(need):   # topped up, or failing repeatedly: stop on it
+                if need[sid] <= 0 or tries[sid] >= 2 * goal:
+                    del need[sid]
+    else:
+        new_count = sum(1 for c in tour.n_comp.values() if c == 0)
+        budget = done + appearances * new_count // 2
+        if min_total:
+            budget = max(budget, min_total)
+        cap = max(done, min_total or 0) + appearances * len(ids)   # hard safety bound
+        if max_new is not None:
+            budget = min(budget, done + max_new)
+        while state["done"] < budget and state["done"] < cap:
+            run_pairs(tour.select_pairs(min(batch, budget - state["done"]), tcfg["pairing"]))
+            if tour.max_sigma() < sigma_target and tour.mean_appearances() >= appearances:
+                break
+    failures = state["failures"]
 
     logf.close()
     pbar.close()

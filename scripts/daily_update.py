@@ -39,7 +39,7 @@ except Exception:
     pass
 
 from ecblock import roster_gc
-from ecblock.config import PROCESSED
+from ecblock.config import PROCESSED, cfg
 from ecblock.corpus import assemble, bis_live, ncb_feeds
 from ecblock.macro.euro_macro import MacroContext
 from ecblock.output.build_data import era_adjust, write_data_json
@@ -157,7 +157,12 @@ def main():
         pool = make_pool(corpus)
         new_ids = {s.id for s in new}
         n_new_pool = sum(1 for s in pool if s.id in new_ids or s.mu is None)
-        print(f"pool {len(pool)} GC policy records | {n_new_pool} new to score")
+        # re-ingested or previously short-changed records are topped up too
+        floor = cfg()["tournament"].get("min_appearances", 10)
+        n_thin = sum(1 for s in pool if s.mu is not None and s.id not in new_ids
+                     and (s.n_comparisons or 0) < floor)
+        print(f"pool {len(pool)} GC policy records | {n_new_pool} new to score"
+              + (f" | {n_thin} under {floor} comparisons to top up" if n_thin else ""))
 
         if args.no_score:
             print("--no-score: ingested + classified only")
@@ -174,7 +179,7 @@ def main():
         # speeches actually sent to a model
         anon = Anonymizer(build_roster([s.speaker for s in corpus]))
         macro = MacroContext()
-        if n_new_pool:
+        if n_new_pool or n_thin:
             run_tournament(pool, judge, appearances_per_speech=args.appearances,
                            macro=macro, resume=True, anonymizer=anon)
         to_direct = [s for s in pool if s.direct_score is None]

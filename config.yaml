@@ -26,6 +26,7 @@ tournament:
   # as decisive adds noise (split-half reliability 0.69 -> 0.79 on this log).
   draw_below_confidence: 0.60
   draw_probability: 0.75    # TrueSkill's prior that equal speeches come out level
+  min_appearances: 10       # daily run tops up any speech below this, pairing it directly
   sigma_convergence: 2.0
   pairing:
     swiss_fraction: 0.6

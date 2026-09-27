@@ -104,8 +104,28 @@ _MON = {m: i + 1 for i, m in enumerate(
     ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"])}
 
 
+# "28 November 2017", "le 25 mars 2024", "26. Februar 2014" (en/fr/de month names)
+_MONTHS = {**{m: i for i, m in enumerate(
+    ["january", "february", "march", "april", "may", "june", "july", "august",
+     "september", "october", "november", "december"], 1)},
+    **{m: i for i, m in enumerate(
+        ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août",
+         "septembre", "octobre", "novembre", "décembre"], 1)},
+    **{m: i for i, m in enumerate(
+        ["januar", "februar", "märz", "april", "mai", "juni", "juli", "august",
+         "september", "oktober", "november", "dezember"], 1)}}
+_DMY_WORDS = re.compile(r"\b(\d{1,2})(?:er)?\.?\s+(" + "|".join(sorted(_MONTHS, key=len, reverse=True))
+                        + r")\s+(20\d{2})\b", re.I)
+
+
 def guess_date(url: str, title: str) -> str | None:
     """Best-effort date from the URL slug or title when no metadata date exists."""
+    m = _DMY_WORDS.search(title)                                   # 28 November 2017
+    if m:
+        return f"{m.group(3)}-{_MONTHS[m.group(2).lower()]:02d}-{int(m.group(1)):02d}"
+    m = re.search(r"\b(\d{1,2})\.(\d{1,2})\.(20\d{2})\b", title)   # 24.02.2014
+    if m:
+        return f"{m.group(3)}-{int(m.group(2)):02d}-{int(m.group(1)):02d}"
     s = (url + " " + title).lower()
     m = re.search(r"(20\d{2})[-/](\d{2})[-/](\d{2})", url)        # YYYY-MM-DD
     if m:
@@ -125,10 +145,35 @@ def guess_date(url: str, title: str) -> str | None:
     return None
 
 
-def extract_article(url: str) -> dict | None:
+def _pdf_article(url: str, title_hint: str) -> dict | None:
+    """Text of a PDF transcript; the date comes from the listing's link text."""
+    try:
+        r = requests.get(url, headers=UA, timeout=60)
+    except requests.RequestException:
+        return None
+    if r.status_code != 200 or not r.content.startswith(b"%PDF"):
+        return None
+    import io
+
+    from pypdf import PdfReader
+    try:
+        text = "\n".join(p.extract_text() or "" for p in PdfReader(io.BytesIO(r.content)).pages)
+    except Exception:  # noqa: BLE001 - malformed PDF
+        return None
+    text = re.sub(r"[ \t]+", " ", text).strip()
+    date = guess_date(url, title_hint)
+    if not text or not date:
+        return None
+    return {"title": title_hint, "date": date, "text": text}
+
+
+def extract_article(url: str, title_hint: str = "") -> dict | None:
     """Generic article extraction: title, ISO date, full text. Falls back to the
     Wayback Machine when the live site blocks automated access, and to a date
-    parsed from the URL/title when no metadata date is present."""
+    parsed from the URL/title (or the listing's link text, `title_hint`) when no
+    metadata date is present. PDFs are read with pypdf."""
+    if url.lower().endswith(".pdf"):
+        return _pdf_article(url, title_hint)
     html = fetch(url)
     if not html:
         wb = wayback_url(url)
@@ -147,7 +192,7 @@ def extract_article(url: str) -> dict | None:
     title = (d.get("title") or "").strip()
     meta = (d.get("date") or "")[:10]
     meta = meta if re.match(r"\d{4}-\d{2}-\d{2}", meta) else ""
-    slug = guess_date(url, title) or ""
+    slug = guess_date(url, title_hint + " " + title) or ""
     # trafilatura often grabs a footer/copyright date; trust the URL/title date
     # when they disagree on the year, otherwise keep the more specific metadata.
     if meta and slug and meta[:4] != slug[:4]:
@@ -156,7 +201,10 @@ def extract_article(url: str) -> dict | None:
         date = meta or slug
     if not text or not re.match(r"\d{4}-\d{2}-\d{2}", date):
         return None
-    return {"title": title, "date": date, "text": text}
+    # the page's meta description often names the interviewee ("... said Joachim
+    # Nagel in an interview with Le Monde") when the transcript body doesn't
+    return {"title": title, "date": date, "text": text,
+            "description": " ".join(filter(None, (d.get("author"), d.get("excerpt")))).strip()}
 
 
 def scrape_ncb(cfg: NCBConfig, min_chars: int = 600,

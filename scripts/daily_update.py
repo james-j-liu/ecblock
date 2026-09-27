@@ -106,6 +106,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--appearances", type=int, default=30)
     ap.add_argument("--dry-run", action="store_true", help="use mock scorers (no API spend)")
+    ap.add_argument("--no-score", action="store_true",
+                    help="ingest, translate + classify new records, then stop (no scoring)")
     ap.add_argument("--check-sources", action="store_true",
                     help="fetch + de-dup only, print what's new, write nothing")
     ap.add_argument("--feeds-only", action="store_true",
@@ -157,13 +159,16 @@ def main():
         n_new_pool = sum(1 for s in pool if s.id in new_ids or s.mu is None)
         print(f"pool {len(pool)} GC policy records | {n_new_pool} new to score")
 
+        if args.no_score:
+            print("--no-score: ingested + classified only")
+            raise SystemExit(0)
         if args.dry_run:
             from run_full import MockDirectScorer, MockJudge
             judge, scorer = MockJudge(), MockDirectScorer()
         else:
-            from ecblock.judge.direct import DirectScorer
-            from ecblock.judge.openrouter import Judge
-            judge, scorer = Judge(), DirectScorer()
+            from ecblock.judge.factory import make_direct_scorer, make_pairwise_judge
+            judge, scorer = make_pairwise_judge(), make_direct_scorer()
+            print(f"judges: pairwise={judge.model} direct={scorer.model}")
 
         # one anonymiser for both judges; texts are anonymised lazily, only for the
         # speeches actually sent to a model

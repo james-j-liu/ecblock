@@ -100,3 +100,55 @@ class JevJudge:
             return {"winner": None, "confidence": 0.0, "p_a": p_a}
         return {"winner": w, "confidence": float(ans.get("confidence", max(p_a, 1 - p_a))),
                 "p_a": p_a}
+
+
+# ---- direct scoring via Jev's "score" primitive ---------------------------------
+from .direct import DirectScorer  # noqa: E402
+
+LEVELS = ["Very dovish", "Dovish", "Slightly dovish", "Neutral",
+          "Slightly hawkish", "Hawkish", "Very hawkish"]
+SCORE_INSTRUCTIONS = (
+    "Rate the monetary-policy stance of this anonymized excerpt from euro-area central "
+    "bank communication (ECB Governing Council members or the Council itself) RELATIVE "
+    "TO the macroeconomic context given. Hawkish = leaning toward tighter policy: concern "
+    "about inflation or overheating, higher rates, faster or longer tightening, balance-"
+    "sheet reduction. Dovish = concern about growth, employment or disinflation, cuts, "
+    "prolonged accommodation, asset purchases. Urging inflation vigilance at 2% HICP is "
+    "meaningfully hawkish; the same words at 8.5% HICP merely state the obvious."
+)
+
+
+class JevScorer(DirectScorer):
+    """Direct score from Jev's ordered 7-level scale. Jev returns a probability-
+    weighted position (0-6), i.e. a continuous score rather than the round-number
+    clusters chat models produce; mapped to the same 0-100 units as pairwise."""
+
+    def __init__(self, model: str = MODEL, max_excerpt_chars: int = 100000):
+        self.model = model
+        self.max_excerpt_chars = max_excerpt_chars   # one excerpt fits Jev's 32k window
+        self._jev = JevJudge(model=model)
+
+    def score(self, text: str, macro: str) -> float | None:
+        cap = self.max_excerpt_chars
+        while True:
+            try:
+                res = self._jev._post({
+                    "model": self.model,
+                    "state": {"macro_context": macro, "excerpt": self._jev._excerpt(text, cap)},
+                    "questions": {"stance": {"type": "score", "instructions": SCORE_INSTRUCTIONS,
+                                             "criteria": LEVELS}}})
+                break
+            except requests.HTTPError as e:
+                if str(e).startswith("400") and cap > 8000:
+                    cap = int(cap * 0.7)
+                    continue
+                return None
+            except Exception:  # noqa: BLE001 - exhausted retries: skip, don't kill the run
+                return None
+        self._jev.cost += float(res.get("usage", {}).get("cost") or 0)
+        s = res["answers"]["stance"].get("score")
+        return None if s is None else round(float(s) / (len(LEVELS) - 1) * 100, 2)
+
+    @property
+    def cost(self) -> float:
+        return self._jev.cost

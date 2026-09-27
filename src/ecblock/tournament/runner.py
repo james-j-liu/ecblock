@@ -29,7 +29,12 @@ def run_tournament(
     concurrency: int | None = None,
     resume: bool = False,
     anonymizer=None,
+    min_total: int | None = None,
+    max_new: int | None = None,
 ) -> Tournament:
+    """min_total: keep going until the log holds at least this many comparisons (a
+    full re-run resumed in chunks). max_new: stop after this many new comparisons in
+    this call (so a chunk fits a time limit; the log makes the next call resume)."""
     tcfg = cfg()["tournament"]
     jcfg = cfg()["judge"]
     appearances = appearances_per_speech or tcfg["target_appearances_per_speech"]
@@ -110,7 +115,11 @@ def run_tournament(
     # forever dumping comparisons onto the rest).
     new_count = sum(1 for c in tour.n_comp.values() if c == 0)
     budget = done + appearances * new_count // 2
-    cap = done + appearances * len(ids)          # hard safety bound
+    if min_total:
+        budget = max(budget, min_total)
+    cap = max(done, min_total or 0) + appearances * len(ids)   # hard safety bound
+    if max_new is not None:
+        budget = min(budget, done + max_new)
     while done < budget and done < cap:
         n = batch
         pairs = tour.select_pairs(n, tcfg["pairing"])

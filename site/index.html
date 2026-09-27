@@ -435,10 +435,16 @@ const METH=`<h3>What this measures</h3>
 <p>Each point is one ECB-related monetary-policy document scored on a hawkish–dovish
 spectrum, shown on a −10 to +10 scale where 0 is neutral, positive is more hawkish
 (a preference for tighter policy) and negative is more dovish. Scores come from a
-<b>pairwise tournament</b>: an LLM judge reads two anonymized excerpts side by side, with
+<b>pairwise tournament</b>: a judge model reads two anonymized documents side by side, with
 the macro conditions of each, and decides which is more hawkish <i>relative to those
 conditions</i>. A TrueSkill rating engine turns ~30 comparisons per document into a
 continuous score.</p>
+<h3>The judge</h3>
+<p>Scoring uses <b>Jev</b> (TypeSafe), a <i>decision</i> model: rather than writing an answer it
+returns a typed choice with a probability for each option, so there is no free text to parse.
+It reads up to ~56,000 characters of each document, which covers about 97% of the corpus in
+full — including complete press-conference Q&amp;A transcripts. Classification and translation,
+which need a text-generating model, run on Gemini 2.5 Flash-Lite.</p>
 <h3>Why pairwise?</h3>
 <p>Asking a model to score each speech 1–100 directly collapses into round-number clusters
 with little discriminating power. Forced binary comparison is an easier, more reliable
@@ -446,21 +452,16 @@ judgment, and TrueSkill aggregates the binary outcomes into a smooth scale.</p>
 <h3>The Method toggle — Pairwise vs. Direct</h3>
 <p>Every tab has a <b>Method</b> selector in the top-right. <b>Pairwise tournament</b> is the
 primary measure described above (~30 comparisons per document). <b>Direct 0–100</b> is
-FedLock's cheaper baseline: the same LLM, the same anonymized excerpt and macro context, but
-asked to rate each document on a 0–100 hawkish–dovish scale in a single call (N calls instead
-of ~15·N). It runs at a fraction of the cost but discriminates less finely and tends to
-cluster on round numbers — which is exactly the limitation the tournament exists to overcome.
-Both are shown so you can compare the two methods on the identical corpus.</p>
-<p>Direct LLM scores are inherently <b>quantised</b>: the model emits round-number tokens
-rather than a true continuous scalar (verified across Gemini, Claude and GPT). To halve the
-clustering, the direct method is scored on a wider <b>−100 to +100</b> scale — the model still
-snaps to round numbers, but those round numbers are now twice as fine relative to the range —
-and then rescaled into the same units as the pairwise score. This roughly doubles the
-resolution (≈25 levels at half-integer steps) but is still discrete. Scores are shown at their
-natural level (the direct method rates the average ECB speech as mildly dovish, so its corpus
-mean sits slightly below 0). This residual coarseness is exactly why the <b>pairwise</b> method
-exists: it is genuinely continuous (≈1,600 distinct values), so for fine distinctions between
-speakers or speeches, prefer the pairwise score.</p>
+FedLock's cheaper baseline: the same judge, the same anonymized document and macro context,
+but asked to place each document on a hawkish–dovish scale in a single call (N calls instead
+of ~15·N). Both are shown so you can compare the two methods on the identical corpus.</p>
+<p>Text-generating LLMs asked for a number snap to round values (verified across Gemini, Claude
+and GPT), which is why FedLock prefers pairwise. Jev instead places each document on a
+seven-level scale from <i>very dovish</i> to <i>very hawkish</i> and returns the probability
+of each level; the direct score is the probability-weighted position, rescaled into the same
+units as the pairwise score. That makes it continuous rather than clustered, but it is still a
+single absolute judgment — for fine distinctions between speakers or speeches, prefer the
+pairwise score, which is built from many relative comparisons.</p>
 <h3>Anonymization</h3>
 <p>A five-layer pipeline strips names, titles, and speaker labels before judging, so the
 model reads the text on its merits rather than recognising who is speaking.</p>

@@ -36,7 +36,12 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/processed/corpus.jsonl data/processed/tournament_log.jsonl data/processed/roster_state.json site/data.json site/macro.json
           git commit -m "daily update $(date -u +%F)" || echo "no changes to commit"
-          git push
+          # main may have moved during the run (e.g. a code push); rebase onto it
+          # rather than failing the whole deploy
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && break
+            echo "push attempt $i failed; retrying"; sleep 15
+          done
       - name: Upload site for Pages
         uses: actions/upload-pages-artifact@v3
         with:

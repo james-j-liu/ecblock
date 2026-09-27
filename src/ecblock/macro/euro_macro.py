@@ -1,8 +1,9 @@
 """Euro-area macro context for the judge (analogue of FedLock's PCE/unemp/GDP/VIX).
 
 Series pulled from the ECB Data Portal REST API and cached to data/raw. For each
-speech date we report the most recent observation on or before that date, so the
-judge sees only information available at the time.
+speech date we report the most recent observation PUBLISHED on or before that date (each series is
+shifted by its publication lag), so the judge sees only information available
+at the time.
 
 Series (euro-area aggregate):
   - core_hicp   : HICP excluding energy & food, annual % change   (~Core PCE)
@@ -55,6 +56,13 @@ def _fetch_series(series_key: str) -> pd.Series | None:
     return s
 
 
+# Days from the start of an observation's reference period to its publication.
+# Eurostat: the HICP flash for month M is out on its last working day, and the
+# unemployment rate ~1 month after M ends; the GDP flash ~30 days after the
+# quarter ends. (The core HICP rate is final in mid-M+1; the flash is close.)
+PUBLICATION_LAG_DAYS = {"core_hicp": 31, "unemployment": 62, "gdp_growth": 122, "vstoxx": 0}
+
+
 class MacroContext:
     def __init__(self):
         series_cfg = cfg()["macro"]["series"]
@@ -64,6 +72,11 @@ class MacroContext:
                 continue
             s = _fetch_series(key)
             if s is not None and len(s):
+                # observations are dated by the period they describe (a month's CPI
+                # is dated the 1st); shift each to when it was actually published,
+                # or a speech on the 5th is judged against a figure not yet out
+                s = s.copy()
+                s.index = s.index + pd.Timedelta(days=PUBLICATION_LAG_DAYS.get(name, 0))
                 self.series[name] = s
 
     def as_of(self, d: str) -> dict[str, float | None]:

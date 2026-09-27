@@ -48,7 +48,17 @@ def run_tournament(
         initial_mu=tcfg["initial_mu"],
         initial_sigma=tcfg["initial_sigma"],
         seed=seed,
+        draw_probability=tcfg.get("draw_probability", 0.0),
     )
+    # A Jev verdict carries a calibrated confidence. Below the threshold the model
+    # could not really separate the two speeches, and recording that as a full win
+    # feeds TrueSkill a near coin-flip as if it were decisive; it is recorded as a
+    # draw instead (split-half reliability 0.69 -> 0.79 on this corpus's Jev log).
+    # Chat-judge records carry no calibrated probability ("p_a"), so they never draw.
+    draw_below = tcfg.get("draw_below_confidence")
+
+    def drawn(rec: dict) -> bool:
+        return bool(draw_below) and "p_a" in rec and rec.get("confidence", 1.0) < draw_below
     macro_str = {sid: macro.string(by_id[sid].date) for sid in ids}
     rng = random.Random(seed)
     if anonymizer is None:
@@ -82,9 +92,9 @@ def run_tournament(
                 if a_id not in by_id or b_id not in by_id:
                     continue  # belongs to a different pool
                 if w == "A":
-                    tour.record(a_id, b_id); replayed += 1
+                    tour.record(a_id, b_id, drawn=drawn(rec)); replayed += 1
                 elif w == "B":
-                    tour.record(b_id, a_id); replayed += 1
+                    tour.record(b_id, a_id, drawn=drawn(rec)); replayed += 1
         done = replayed
         print(f"[tournament] resumed: replayed {replayed} logged comparisons")
         logf = log_path.open("a", encoding="utf-8")
@@ -140,9 +150,9 @@ def run_tournament(
                 consecutive_failures = 0
                 w = res.get("winner")
                 if w == "A":
-                    tour.record(a_id, b_id)
+                    tour.record(a_id, b_id, drawn=drawn(res))
                 elif w == "B":
-                    tour.record(b_id, a_id)
+                    tour.record(b_id, a_id, drawn=drawn(res))
                 else:
                     continue  # unparseable -> skip, don't corrupt ratings
                 logf.write(json.dumps({"a": a_id, "b": b_id, **res}) + "\n")

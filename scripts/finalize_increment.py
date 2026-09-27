@@ -8,7 +8,6 @@ getting killed) - only the handful of new speeches are scored.
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
@@ -18,14 +17,14 @@ try:
 except Exception:
     pass
 
-from ecblock.config import PROCESSED, cfg
+from ecblock.config import PROCESSED
 from ecblock.macro.euro_macro import MacroContext
 from ecblock.output.build_data import era_adjust, write_data_json
 from ecblock.process.anonymize import Anonymizer
 from ecblock.process.roster import build_roster
 from ecblock.roster_gc import is_gc
 from ecblock.schema import load_corpus, save_corpus
-from ecblock.tournament.engine import Tournament
+from ecblock.tournament.runner import run_tournament
 
 import datetime
 CORPUS = PROCESSED / "corpus.jsonl"
@@ -42,32 +41,13 @@ def main():
 
     corpus = load_corpus(CORPUS)
     pool = [s for s in corpus if s.is_policy and is_gc(s.speaker) and SINCE <= s.date <= UNTIL]
-    by_id = {s.id: s for s in pool}
     print(f"Pool: {len(pool)} GC policy records", flush=True)
 
-    # ---- pairwise ratings from the full log (free; needs no anonymised text) ----
-    tcfg = cfg()["tournament"]
-    tour = Tournament(list(by_id), initial_mu=tcfg["initial_mu"],
-                      initial_sigma=tcfg["initial_sigma"], seed=args.seed)
-    replayed = 0
-    with LOG.open(encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                r = json.loads(line); a, b, w = r["a"], r["b"], r.get("winner")
-            except (json.JSONDecodeError, KeyError):
-                continue
-            if a in by_id and b in by_id:
-                if w == "A":
-                    tour.record(a, b); replayed += 1
-                elif w == "B":
-                    tour.record(b, a); replayed += 1
-    print(f"Replayed {replayed} comparisons")
-    for sid, s in by_id.items():
-        r = tour.rating(sid)
-        s.mu, s.sigma, s.n_comparisons = round(r.mu, 3), round(r.sigma, 3), tour.n_comp[sid]
+    # ---- pairwise ratings from the full log (free; no API calls) ----
+    # replay through the shared runner so draw handling etc. match the daily job
+    replay_only = type("Replay", (), {"model": "replay"})()
+    run_tournament(pool, replay_only, macro=MacroContext(), log_path=LOG,
+                   resume=True, seed=args.seed, max_new=0)
 
     # ---- direct scores: corpus is the canonical (discrete, un-centered) source;
     # only score speeches that don't have one yet ----
@@ -85,8 +65,8 @@ def main():
                 anon.text_of(s)
             MockDirectScorer().score_all(new_to_score, macro)
         else:
-            from ecblock.judge.direct import DirectScorer
-            DirectScorer().score_all(new_to_score, macro, concurrency=6, anonymizer=anon)
+            from ecblock.judge.factory import make_direct_scorer
+            make_direct_scorer().score_all(new_to_score, macro, concurrency=6, anonymizer=anon)
             save_corpus(corpus, CORPUS)   # persist new direct scores
 
     era_adjust(pool)

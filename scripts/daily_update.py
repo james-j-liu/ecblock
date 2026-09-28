@@ -86,15 +86,27 @@ def fetch_new(existing, args, today: datetime.date):
     # sources (e.g. FoeDB today, the ECB CSV weeks later) with different URLs/dates.
     ids = {s.id for s in existing}
     keys = {(canon(s.speaker), s.date, s.source_type) for s in existing}
-    tkeys = {_title_key(s) for s in existing}
+    # (speaker, title) -> dates held. A title match only counts as a duplicate
+    # within 10 days: recurring events reuse titles (Lagarde's quarterly European
+    # Parliament hearing is always "Hearing of the Committee on Economic and
+    # Monetary Affairs ..."), while the same speech arriving via two sources is
+    # dated within days.
+    tkeys: dict[tuple, list] = collections.defaultdict(list)
+    for s in existing:
+        tkeys[_title_key(s)].append(s.date)
+
+    def same_title_nearby(tk, date):
+        d = datetime.date.fromisoformat(date)
+        return any(abs((d - datetime.date.fromisoformat(x)).days) <= 10 for x in tkeys.get(tk, ()))
     horizon = (today + datetime.timedelta(days=1)).isoformat()
     new, per_source = [], collections.Counter()
     for label, batch in (("ecb", fresh), ("bis", bis), ("feeds", feeds)):
         for s in batch:
             k, tk = (canon(s.speaker), s.date, s.source_type), _title_key(s)
-            if s.id in ids or k in keys or tk in tkeys or not s.date or s.date > horizon:
+            if (s.id in ids or k in keys or not s.date or s.date > horizon
+                    or same_title_nearby(tk, s.date)):
                 continue
-            ids.add(s.id); keys.add(k); tkeys.add(tk)
+            ids.add(s.id); keys.add(k); tkeys[tk].append(s.date)
             new.append(s)
             per_source[label] += 1
     print(f"sources: {len(fresh)} ECB + {len(bis)} BIS + {len(feeds)} feed items "

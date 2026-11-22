@@ -88,6 +88,23 @@ def build_rows(meetings: list[Meeting], corpus, guidance: dict, be_data: dict,
         f["cyc_down"] = int(ps["dir"] < 0)
         f["early_up"] = int(ps["early"] and ps["dir"] > 0)
         f["early_down"] = int(ps["early"] and ps["dir"] < 0)
+        # the last decision, and how this cycle has been paced: was the last move the
+        # first of a new cycle; did the Council move then pause; how long is the run
+        outs = [x.outcome for x in meetings[:k] if x.outcome is not None]
+        last = outs[-1] if outs else 0
+        f["last_up"], f["last_down"] = int(last > 0), int(last < 0)
+        run = 0
+        for o in reversed(outs):
+            if o and o == last:
+                run += 1
+            else:
+                break
+        prior_same = [o for o in outs[-9:-1] if o == last] if last else []
+        f["first_up"] = int(last > 0 and run == 1 and not prior_same)
+        f["first_down"] = int(last < 0 and run == 1 and not prior_same)
+        f["paused_up"] = int(len(outs) >= 2 and outs[-1] == 0 and outs[-2] > 0)
+        f["paused_down"] = int(len(outs) >= 2 and outs[-1] == 0 and outs[-2] < 0)
+        f["run_len"] = float(np.sign(last) * min(run, 5))
         # guidance (soft votes over core docs in the window)
         g = [guidance[s.id] for s in win if s.id in guidance]
         if g:
@@ -193,6 +210,142 @@ def backtest(rows: list[Row], start: str = "2013-01-01") -> dict:
                              brier=round(float(np.mean(br)), 3), accuracy=round(float(np.mean(acc)), 3),
                              n_turn=len(turn), log_loss_turn=round(float(np.mean(ll_turn)), 3) if turn else None)
     return {"summary": summary, "preds": res}
+
+
+# ---------------------------------------------------------------- significance-checked selection
+GROUPS = {
+    "last decision": ["last_up", "last_down"],
+    "pace": ["due_up", "due_down", "cyc_up", "cyc_down", "early_up", "early_down"],
+    "member guidance": ["g_up", "g_down", "g_hold", "g_up_max", "g_down_max", "g_hold_max", "p_acc", "p_slow"],
+    "inflation vs projections": ["d_be", "hicp_gap"],
+    "inertia (first move, pause, run length)": ["first_up", "first_down", "paused_up", "paused_down", "run_len"],
+    "hawkishness shift": ["hawk", "d_hawk"],
+}
+CORE = ["pace", "member guidance", "inflation vs projections"]
+ADDONS = ["inertia (first move, pause, run length)", "hawkishness shift"]
+
+
+def _losses(rows, cols, start, how: str = "loyo"):
+    """Per-meeting log loss from `start`. "loyo": each meeting predicted by a model fitted
+    on every other year (as in the BoE/BoC models); "expanding": fitted on earlier
+    meetings only (the real-time backtest)."""
+    decided = [r for r in rows if r.meeting.outcome is not None]
+    out = []
+    for i, r in enumerate(decided):
+        if r.meeting.date < start:
+            continue
+        tr = decided[:i] if how == "expanding" else [x for x in decided if x.meeting.date[:4] != r.meeting.date[:4]]
+        p = _fit_predict(tr, r, cols)
+        out.append(-math.log(max(p[CLASSES.index(r.meeting.outcome)], 1e-6)))
+    return np.array(out)
+
+
+def _boot(a, b, n=2000, seed=0):
+    d = a - b
+    rng = np.random.default_rng(seed)
+    s = [d[rng.integers(0, len(d), len(d))].mean() for _ in range(n)]
+    return float(d.mean()), float(np.percentile(s, 2.5)), float(np.percentile(s, 97.5))
+
+
+def select(rows, start: str = "2013-01-01") -> dict:
+    """The baseline is "repeat the last decision". The core (pace, member guidance,
+    inflation vs projections) is kept as a bundle only if it beats that significantly;
+    each add-on is kept only if it significantly lowers log loss on its own. As for the
+    BoE and BoC models: leave-one-year-out predictions, paired bootstrap over meetings
+    (2000 draws), 95% interval wholly below zero. The real-time (expanding-window)
+    result for the core is reported alongside."""
+    base = GROUPS["last decision"]
+    core = base + [c for g in CORE for c in GROUPS[g]]
+    lb, lc = _losses(rows, base, start), _losses(rows, core, start)
+    m, lo, hi = _boot(lc, lb)
+    eb, ec = _losses(rows, base, start, "expanding"), _losses(rows, core, start, "expanding")
+    em, elo, ehi = _boot(ec, eb)
+    rep = {"baseline": "repeat the last decision", "baseline_log_loss": round(float(lb.mean()), 4), "n": int(len(lb)),
+           "core": {"log_loss": round(float(lc.mean()), 4), "change": round(m, 4), "ci95": [round(lo, 4), round(hi, 4)],
+                    "significant": hi < 0, "groups": [],
+                    "realtime": {"baseline_log_loss": round(float(eb.mean()), 4), "log_loss": round(float(ec.mean()), 4),
+                                 "change": round(em, 4), "ci95": [round(elo, 4), round(ehi, 4)], "significant": ehi < 0}},
+           "addons": []}
+    for g in CORE:      # each core group's contribution, for the record
+        rest = [c for c in core if c not in GROUPS[g]]
+        mm, l2, h2 = _boot(lc, _losses(rows, rest, start))
+        rep["core"]["groups"].append({"group": g, "contribution": round(mm, 4), "ci95": [round(l2, 4), round(h2, 4)],
+                                      "significant_alone": h2 < 0})
+    if not hi < 0:
+        core, lc = list(base), lb
+    cur, cl = list(core), lc
+    for g in ADDONS:
+        nl = _losses(rows, cur + GROUPS[g], start)
+        mm, l2, h2 = _boot(nl, cl)
+        keep = h2 < 0
+        rep["addons"].append({"group": g, "log_loss": round(float(nl.mean()), 4), "change": round(mm, 4),
+                              "ci95": [round(l2, 4), round(h2, 4)], "kept": keep})
+        if keep:
+            cur, cl = cur + GROUPS[g], nl
+    rep["features"] = cur
+    rep["log_loss"] = round(float(cl.mean()), 4)
+    return rep
+
+
+def ranges(rows, cols, n: int = 300, seed: int = 0) -> dict:
+    """80% range of the live forecast from refits on resampled histories (meetings)."""
+    decided = [r for r in rows if r.meeting.outcome is not None]
+    rng = np.random.default_rng(seed)
+    acc = []
+    for _ in range(n):
+        sub = [decided[i] for i in rng.integers(0, len(decided), len(decided))]
+        acc.append(_fit_predict(sub, rows[-1], cols))
+    acc = np.array(acc)
+    return {c: [round(float(np.percentile(acc[:, j], 10)), 3), round(float(np.percentile(acc[:, j], 90)), 3)]
+            for j, c in enumerate(("cut", "hold", "hike"))}
+
+
+def calibration(rows, cols, start: str = "2013-01-01") -> list[dict]:
+    """How often the most likely outcome happened, by stated confidence (leave-one-year-out)."""
+    decided = [r for r in rows if r.meeting.outcome is not None and r.meeting.date >= start]
+    allr = [r for r in rows if r.meeting.outcome is not None]
+    pm, hit = [], []
+    for r in decided:
+        p = _fit_predict([x for x in allr if x.meeting.date[:4] != r.meeting.date[:4]], r, cols)
+        pm.append(float(p.max()))
+        hit.append(CLASSES[int(np.argmax(p))] == r.meeting.outcome)
+    pm, hit = np.array(pm), np.array(hit)
+    out = []
+    for lo, hi in ((0.0, 0.8), (0.8, 0.95), (0.95, 1.01)):
+        m = (pm >= lo) & (pm < hi)
+        if m.sum():
+            out.append({"band": f"{lo:.0%}–{min(hi, 1):.0%}", "n": int(m.sum()), "stated": round(float(pm[m].mean()), 3),
+                        "right": round(float(hit[m].mean()), 3)})
+    return out
+
+
+def inertia_stats(meetings) -> dict:
+    """How the Governing Council paces a cycle."""
+    d = [(m.date, m.outcome) for m in meetings if m.outcome is not None]
+    follow, first, pause, runs = [], [], [], []
+    i = 0
+    while i < len(d):
+        if d[i][1]:
+            sgn, j = d[i][1], i
+            while j + 1 < len(d) and d[j + 1][1] == sgn:
+                j += 1
+            runs.append(j - i + 1)
+            i = j + 1
+        else:
+            i += 1
+    for i, (dd, u) in enumerate(d[:-1]):
+        if not u:
+            continue
+        follow.append(d[i + 1][1] == u)
+        rec = [v for x, v in d[:i] if (dt.date.fromisoformat(dd) - dt.date.fromisoformat(x)).days < 365 and v == u]
+        if not rec:
+            first.append(d[i + 1][1] == u)
+    for i in range(2, len(d)):
+        if d[i - 2][1] and not d[i - 1][1]:
+            pause.append(d[i][1] == d[i - 2][1])
+    f = lambda x: {"p": round(float(np.mean(x)), 3), "n": len(x)}
+    return {"since": d[0][0], "after_move": f(follow), "after_first_move": f(first), "after_pause": f(pause),
+            "mean_run": round(float(np.mean(runs)), 2), "runs": sorted(runs)}
 
 
 def forecast(rows: list[Row], cols: list[str]) -> np.ndarray:

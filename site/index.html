@@ -124,6 +124,12 @@
     <div class="nm-h">Approaches compared (backtest, every meeting since 2013)</div>
     <table class="nm" id="nm-appr"></table>
     <div class="nm-note" id="nm-apprnote"></div>
+    <div class="nm-h">How the inputs were chosen (significance check)</div>
+    <table class="nm" id="nm-sel"></table>
+    <div class="nm-note" id="nm-selnote"></div>
+    <div class="nm-h">How often the headline model is right, by stated confidence</div>
+    <table class="nm" id="nm-cal"></table>
+    <div class="nm-note" id="nm-calnote"></div>
     <div class="nm-h">Backtest: headline model's probabilities vs what the ECB did</div>
     <div id="nm-bt" class="nm-plot"></div>
     <div class="nm-h">Does the ECB stick to an established pace?</div>
@@ -628,8 +634,11 @@ function renderNext(){
   lay.yaxis={...lay.yaxis,tickformat:".0%",range:[0,1]}; lay.xaxis={...lay.xaxis,fixedrange:true};
   Plotly.react("nm-dist",[{type:"bar",x:lab,y:vals,marker:{color:[DOVE,"#6f95c2","#59616b","#e88b77",HAWK]},
     text:vals.map(v=>pct(v)),textposition:"outside",hovertemplate:"%{x}: %{y:.1%}<extra></extra>"}],lay,{displayModeBar:false});
+  const r80=h.range80||{}, rg=k=>r80[k]?` (80% range ${pct(r80[k][0])}–${pct(r80[k][1])})`:"";
   document.getElementById("nm-headnote").innerHTML=
-    `Headline model: <b>${h.model}</b> (lowest backtest log loss). It estimates cut / hold / hike; the 25bp vs 50bp+ split `+
+    `Headline: hike ${pct(h.probs3.hike)}${rg("hike")}, hold ${pct(h.probs3.hold)}${rg("hold")}, cut ${pct(h.probs3.cut)}${rg("cut")}. `+
+    `Model: <b>${h.model}</b> — inputs kept only if they beat "repeat the last decision" by more than chance (see below). `+
+    `The ranges come from refitting on ${300} resampled histories. It estimates cut / hold / hike; the 25bp vs 50bp+ split `+
     `comes from members' "larger move" guidance and the size of the cycle's last move. Other approaches are compared below.`;
   // cards
   const p=sg.pace, g=sg.guidance, hk=sg.hawk, inf=sg.inflation;
@@ -646,6 +655,21 @@ function renderNext(){
     ["Inflation vs projections", inf.d_be==null?"–":`${sgn(100*inf.d_be,0)}bp since ${fmtDate(inf.proj_date)}`,
      `Market-implied inflation (Bund €i breakeven, ${inf.maturity?inf.maturity.slice(0,4):""} bond) moved ${inf.d_be==null?"–":sgn(100*inf.d_be,0)+"bp"} since the last staff projections. Latest HICP (${inf.hicp_month.slice(0,7)}) ${inf.hicp}% vs ${inf.proj[inf.hicp_month.slice(0,4)]??"–"}% projected for ${inf.hicp_month.slice(0,4)}.`],
   ];
+  const IN=NM.inertia;
+  if(IN){
+    const nw=IN.now||{}, s15=IN.since_2015||{}, f=x=>x?`${pct(x.p)} (n=${x.n})`:"–";
+    const state=nw.paused_up?"paused after a hike":nw.paused_down?"paused after a cut":nw.first_up?"first hike of a cycle":
+      nw.first_down?"first cut of a cycle":nw.last_up?"hiked last time":nw.last_down?"cut last time":"held last time";
+    const rel=nw.paused_up||nw.paused_down?IN.after_pause:nw.first_up||nw.first_down?IN.after_first_move:nw.last_up||nw.last_down?IN.after_move:null;
+    const rel15=nw.paused_up||nw.paused_down?s15.after_pause:nw.first_up||nw.first_down?s15.after_first_move:nw.last_up||nw.last_down?s15.after_move:null;
+    cards.push(["Inertia (back-to-back moves)", state+(rel?` · moved again ${pct(rel.p)}`:""),
+      `Since ${IN.since.slice(0,4)}: after a move the ECB moved the same way at the next meeting ${f(IN.after_move)}; `+
+      `after the <i>first</i> move of a cycle ${f(IN.after_first_move)}; after a move then a pause it resumed ${f(IN.after_pause)}. `+
+      `Since 2015: ${f(s15.after_move)}, ${f(s15.after_first_move)}, ${f(s15.after_pause)}. Unlike the Bank of Canada, a first move is rarely followed straight away — `+
+      `moves cluster at projection meetings, as at the Bank of England. `+
+      ((NM.selection&&(NM.selection.addons||[]).some(a=>a.group.startsWith("inertia")&&a.kept))?"These inputs passed the significance test and are in the model.":
+      "These inputs were tested as an add-on and did not significantly improve the forecast (below): the pace and guidance inputs already carry it.")]);
+  }
   document.getElementById("nm-cards").innerHTML=cards.map(([t,b,w])=>`<div class="nm-card"><h4>${t}</h4><div class="big">${b}</div><div class="why">${w}</div></div>`).join("");
   // guidance docs
   const docs=g.docs||[];
@@ -683,6 +707,31 @@ function renderNext(){
     `Each approach is refitted before every meeting using only earlier meetings (expanding window), then scored on that meeting; ${nB} meetings from 2013. `+
     `Lower log loss / Brier is better. "Turning points" are the ${nT} meetings whose decision differed from the previous one — the hard cases. `+
     `With ~30 rate moves in the sample, differences of a few hundredths are within noise.`;
+  // selection
+  const SL=NM.selection;
+  if(SL){
+    const ci=c=>`[${sgn(c[0],3)}, ${sgn(c[1],3)}]`, cr=SL.core;
+    document.getElementById("nm-sel").innerHTML=
+      `<tr><th class="l">Step</th><th>Log loss</th><th>Change</th><th>95% interval</th><th class="l">Result</th></tr>`+
+      `<tr><td class="l">Baseline: repeat the last decision</td><td>${SL.baseline_log_loss.toFixed(3)}</td><td>–</td><td>–</td><td class="l">–</td></tr>`+
+      `<tr><td class="l">Core: pace + member guidance + inflation vs projections</td><td>${cr.log_loss.toFixed(3)}</td><td>${sgn(cr.change,3)}</td><td>${ci(cr.ci95)}</td><td class="l">${cr.significant?"<b>kept</b>":"dropped"}</td></tr>`+
+      cr.groups.map(g=>`<tr><td class="l" style="padding-left:22px;color:var(--mut)">within core: ${g.group}</td><td>–</td><td>${sgn(g.contribution,3)}</td><td>${ci(g.ci95)}</td><td class="l" style="color:var(--mut)">${g.significant_alone?"significant on its own":"not significant on its own"}</td></tr>`).join("")+
+      SL.addons.map(a=>`<tr><td class="l">Add-on: ${a.group}</td><td>${a.log_loss.toFixed(3)}</td><td>${sgn(a.change,3)}</td><td>${ci(a.ci95)}</td><td class="l">${a.kept?"<b>kept</b>":"dropped"}</td></tr>`).join("");
+    const rt=cr.realtime;
+    document.getElementById("nm-selnote").innerHTML=
+      `Same rule as the Bank of England and Bank of Canada models. Each of the ${SL.n} meetings since 2013 is predicted by a model fitted on the other years; `+
+      `the core is kept as a bundle if it beats "repeat the last decision" significantly, and each add-on only if it lowers log loss significantly on its own `+
+      `(paired bootstrap over meetings, 2000 draws, 95% interval wholly below zero). "Within core" rows show what dropping each group would cost; positive means the group does not help.`+
+      (rt?` <b>Real-time check:</b> fitting only on earlier meetings, the core improves log loss by ${sgn(rt.change,3)} ${ci(rt.ci95)} — `+
+      `${rt.significant?"also significant":"not significant in real time, because 2013–21 has no hikes to learn from"}; the approaches table above shows the real-time scores.`:"");
+  }
+  const CA=NM.calibration;
+  if(CA){
+    document.getElementById("nm-cal").innerHTML=`<tr><th class="l">Confidence in the most likely outcome</th><th>Meetings</th><th>Average stated</th><th>Actually right</th></tr>`+
+      CA.map(b=>`<tr><td class="l">${b.band}</td><td>${b.n}</td><td>${pct(b.stated)}</td><td>${pct(b.right)}</td></tr>`).join("");
+    document.getElementById("nm-calnote").innerHTML=`Leave-one-year-out predictions of the headline model, every meeting since 2013. `+
+      `Where "actually right" is below "average stated", the model has been overconfident in that band; read the live odds with that in mind.`;
+  }
   // backtest chart
   const bs=NM.backtest.series;
   const lt=baseLayout(); lt.xaxis={...lt.xaxis,type:"date"}; lt.yaxis={...lt.yaxis,tickformat:".0%",range:[0,1],title:"probability"};

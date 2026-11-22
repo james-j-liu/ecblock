@@ -3,8 +3,10 @@
     python scripts/next_meeting.py              # uses cached guidance + breakevens
     python scripts/next_meeting.py --refresh    # classify new core docs (Jev) + refetch breakevens
 
-See src/ecblock/policy/framework.py for the method. The headline model is the
-approach with the lowest backtest log loss (chosen by the data, re-checked daily).
+See src/ecblock/policy/framework.py for the method. The headline model is chosen by a
+significance check, re-run daily (framework.select): the core (pace, member guidance,
+inflation vs projections) must beat "repeat the last decision" significantly, and each
+add-on (inertia, hawkishness shift) must significantly improve on that by itself.
 """
 from __future__ import annotations
 
@@ -83,9 +85,11 @@ def main():
     rows = fw.build_rows(meetings, corpus, guidance, be_data, hicp, today)
     live = rows[-1]
     assert live.meeting.date == nxt.date, (live.meeting.date, nxt.date)
+    sel = fw.select(rows)
+    best = "Selected (significance-checked)"
+    fw.APPROACHES[best] = sel["features"]
     bt = fw.backtest(rows)
     summ = bt["summary"]
-    best = min((k for k in summ if k != "Base rate"), key=lambda k: summ[k]["log_loss"])
 
     approaches = []
     for name, cols in fw.APPROACHES.items():
@@ -94,6 +98,10 @@ def main():
                            "probs": {"cut": round(p[0], 4), "hold": round(p[1], 4), "hike": round(p[2], 4)},
                            **summ[name]})
     p_best = fw.forecast(rows, fw.APPROACHES[best])
+    rng80 = fw.ranges(rows, sel["features"])
+    calib = fw.calibration(rows, sel["features"])
+    inertia = fw.inertia_stats(meetings)
+    inertia["since_2015"] = fw.inertia_stats([m for m in meetings if m.date >= "2015-01-01"])
 
     # ---- signals for display
     f = live.feats
@@ -120,7 +128,12 @@ def main():
                          "window": [prev.date, min(today, nxt.quiet_start)], "last_decision": prev.bp,
                          "last_decision_date": prev.date},
         "headline": {"model": best, "probs": size_split(p_best, rows, live),
-                     "probs3": {"cut": round(p_best[0], 4), "hold": round(p_best[1], 4), "hike": round(p_best[2], 4)}},
+                     "probs3": {"cut": round(p_best[0], 4), "hold": round(p_best[1], 4), "hike": round(p_best[2], 4)},
+                     "range80": rng80},
+        "selection": sel,
+        "calibration": calib,
+        "inertia": {**inertia, "now": {k: live.feats[k] for k in ("last_up", "last_down", "first_up", "first_down",
+                                                                   "paused_up", "paused_down", "run_len")}},
         "approaches": approaches,
         "signals": {
             "pace": {**ps, "moves": [(m.date, m.bp) for m in meetings if m.bp and m.date >= "2022-01-01"]},

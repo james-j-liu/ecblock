@@ -99,6 +99,14 @@ def fetch_new(existing, args, today: datetime.date):
         d = datetime.date.fromisoformat(date)
         return any(abs((d - datetime.date.fromisoformat(x)).days) <= 10 for x in tkeys.get(tk, ()))
     horizon = (today + datetime.timedelta(days=1)).isoformat()
+    # last line of defence: the same speech republished elsewhere with a different
+    # URL, title and date (e.g. an ECB speech reposted by a national central bank)
+    from ecblock.process.textdup import is_duplicate_of
+    recent_by_person: dict[str, list] = collections.defaultdict(list)
+    cutoff = (today - datetime.timedelta(days=200)).isoformat()
+    for s in existing:
+        if s.date and s.date >= cutoff and (s.text or ""):
+            recent_by_person[canon(s.speaker)].append(s)
     new, per_source = [], collections.Counter()
     for label, batch in (("ecb", fresh), ("bis", bis), ("feeds", feeds)):
         for s in batch:
@@ -106,7 +114,10 @@ def fetch_new(existing, args, today: datetime.date):
             if (s.id in ids or k in keys or not s.date or s.date > horizon
                     or same_title_nearby(tk, s.date)):
                 continue
+            if (s.text or "") and is_duplicate_of(s, recent_by_person.get(canon(s.speaker), [])):
+                continue
             ids.add(s.id); keys.add(k); tkeys[tk].append(s.date)
+            recent_by_person[canon(s.speaker)].append(s)
             new.append(s)
             per_source[label] += 1
     print(f"sources: {len(fresh)} ECB + {len(bis)} BIS + {len(feeds)} feed items "

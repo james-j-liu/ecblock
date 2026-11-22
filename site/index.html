@@ -43,6 +43,22 @@
   #dt-table th:nth-child(2), #dt-table th:last-child { text-align:left; }
   #dt-table tbody tr:hover { background:#1b2128; }
   #dt-table td.num { color:var(--ink); }
+  .nm-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin:14px 0; }
+  .nm-card { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:12px 14px; font-size:13px; line-height:1.5; }
+  .nm-card h4 { margin:0 0 6px; font-size:13px; color:var(--mut); font-weight:normal; text-transform:uppercase; letter-spacing:.5px; }
+  .nm-card .big { font-size:22px; color:var(--ink); }
+  .nm-card .why { color:var(--mut); font-size:12px; margin-top:6px; }
+  .nm-h { color:var(--hawk); margin:26px 0 8px; font-size:15px; }
+  .nm-note { color:var(--mut); font-size:12px; line-height:1.6; max-width:900px; }
+  table.nm { border-collapse:collapse; font-size:12px; width:100%; }
+  table.nm th, table.nm td { padding:5px 8px; border-bottom:1px solid var(--line); text-align:right; vertical-align:top; }
+  table.nm th { color:var(--mut); font-weight:normal; text-align:right; }
+  table.nm td.l, table.nm th.l { text-align:left; }
+  table.nm tr.best td { background:#1d232b; }
+  .nm-quote { color:var(--mut); font-size:11.5px; max-width:520px; white-space:normal; text-align:left; }
+  .pbar { display:inline-block; height:9px; border-radius:2px; vertical-align:middle; }
+  .nm-plot { width:100%; height:330px; }
+  #nm-wrap { overflow-x:auto; }
   a { color:var(--dove); }
 </style>
 </head>
@@ -58,6 +74,7 @@
 </header>
 <nav>
   <button data-tab="timeline" class="active">Timeline</button>
+  <button data-tab="next">Next meeting</button>
   <button data-tab="rankings">Rankings</button>
   <button data-tab="speaker">Speaker Detail</button>
   <button data-tab="data">Data</button>
@@ -89,6 +106,28 @@
       </span>
     </div>
     <div id="tl-plot" class="plot"></div>
+  </section>
+
+  <section id="next" class="hidden">
+    <div class="sub" id="nm-head" style="margin:0 0 6px"></div>
+    <div id="nm-dist" class="nm-plot" style="height:300px"></div>
+    <div class="nm-note" id="nm-headnote"></div>
+    <div class="nm-grid" id="nm-cards"></div>
+    <div class="nm-h">Core members' guidance since the last meeting</div>
+    <div class="nm-note">Executive Board plus the Bundesbank, Banque de France, Banca d'Italia, Banco de España
+    and De Nederlandsche Bank governors. Jev reads each anonymised document and gives a probability for what it
+    signals about the <i>next</i> rate decision and about the <i>pace</i> of the cycle.</div>
+    <div id="nm-wrap"><table class="nm" id="nm-docs"></table></div>
+    <div class="nm-h">Market-implied inflation vs the last staff projections</div>
+    <div id="nm-be" class="nm-plot"></div>
+    <div class="nm-note" id="nm-benote"></div>
+    <div class="nm-h">Approaches compared (backtest, every meeting since 2013)</div>
+    <table class="nm" id="nm-appr"></table>
+    <div class="nm-note" id="nm-apprnote"></div>
+    <div class="nm-h">Backtest: headline model's probabilities vs what the ECB did</div>
+    <div id="nm-bt" class="nm-plot"></div>
+    <div class="nm-h">Does the ECB stick to an established pace?</div>
+    <div class="nm-note" id="nm-pace"></div>
   </section>
 
   <section id="rankings" class="hidden">
@@ -537,9 +576,10 @@ document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
   b.classList.add("active");
   const tab=b.dataset.tab;
-  for(const s of ["timeline","rankings","speaker","data","methodology"])
+  for(const s of ["timeline","next","rankings","speaker","data","methodology"])
     document.getElementById(s).classList.toggle("hidden",s!==tab);
   if(tab==="timeline")renderTimeline();
+  if(tab==="next")renderNext();
   if(tab==="rankings")renderRankings();
   if(tab==="speaker")renderSpeaker();
   if(tab==="data")renderData();
@@ -559,6 +599,7 @@ document.getElementById("sp-type").onchange=renderSpeaker;
 function rerenderActive(){
   const tab=document.querySelector("nav button.active").dataset.tab;
   if(tab==="timeline")renderTimeline();
+  if(tab==="next")renderNext();
   if(tab==="rankings")renderRankings();
   if(tab==="speaker")renderSpeaker();
   if(tab==="data")renderData();
@@ -566,11 +607,110 @@ function rerenderActive(){
 document.getElementById("method").onchange=rerenderActive;
 document.getElementById("attr-pc").onchange=()=>{ fillSpeakerTypes(); rerenderActive(); };
 
+// ---------------------------------------------------------------- Next meeting tab
+let NM=null;
+const pct=v=>v==null?"–":(100*v).toFixed(0)+"%";
+const sgn=(v,d=2)=>v==null?"–":(v>=0?"+":"")+v.toFixed(d);
+const fmtDate=s=>new Date(s+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+function bar(v,col){ return `<span class="pbar" style="width:${Math.round(60*(v||0))}px;background:${col}"></span> ${pct(v)}`; }
+function renderNext(){
+  if(!NM){ document.getElementById("nm-head").textContent="Next-meeting data not available yet."; return; }
+  const n=NM.next_meeting, h=NM.headline, sg=NM.signals;
+  const lastTxt=n.last_decision>0?`hiked ${n.last_decision}bp`:n.last_decision<0?`cut ${-n.last_decision}bp`:"held";
+  document.getElementById("nm-head").innerHTML=
+    `<b style="color:var(--ink);font-size:16px">Next meeting: ${fmtDate(n.date)}</b>`+
+    `${n.projection?" · new staff projections":""} · signals from ${fmtDate(n.window[0])} to ${fmtDate(n.window[1])}`+
+    ` · quiet period from ${fmtDate(n.quiet_start)} · last meeting (${fmtDate(n.last_decision_date)}) ${lastTxt} · updated ${fmtDate(NM.generated)}`;
+  // headline distribution
+  const lab=["Cut 50bp+","Cut 25bp","Hold","Hike 25bp","Hike 50bp+"], key=["cut_large","cut","hold","hike","hike_large"];
+  const vals=key.map(k=>h.probs[k]);
+  const lay=baseLayout(); lay.margin={l:45,r:20,t:10,b:40};
+  lay.yaxis={...lay.yaxis,tickformat:".0%",range:[0,1]}; lay.xaxis={...lay.xaxis,fixedrange:true};
+  Plotly.react("nm-dist",[{type:"bar",x:lab,y:vals,marker:{color:[DOVE,"#6f95c2","#59616b","#e88b77",HAWK]},
+    text:vals.map(v=>pct(v)),textposition:"outside",hovertemplate:"%{x}: %{y:.1%}<extra></extra>"}],lay,{displayModeBar:false});
+  document.getElementById("nm-headnote").innerHTML=
+    `Headline model: <b>${h.model}</b> (lowest backtest log loss). It estimates cut / hold / hike; the 25bp vs 50bp+ split `+
+    `comes from members' "larger move" guidance and the size of the cycle's last move. Other approaches are compared below.`;
+  // cards
+  const p=sg.pace, g=sg.guidance, hk=sg.hawk, inf=sg.inflation;
+  const cyc=p.dir>0?"tightening":p.dir<0?"easing":"no active";
+  const paceTxt=!p.established?(p.dir? `One ${p.dir>0?"hike":"cut"} so far in this ${cyc} cycle; no settled cadence yet.`:"No active rate cycle.")
+     : p.due?`A ${p.dir>0?"hike":"cut"} is <b>due</b>: moves have come every ${p.gap} meeting${p.gap>1?"s":""} and it has been ${p.since}.`
+     : `Not due: moves every ${p.gap} meetings, last one ${p.since} meeting${p.since>1?"s":""} ago. Moving now would be an acceleration.`;
+  const gdir=g.g_up-g.g_down;
+  const cards=[
+    ["Pace (cycle dummy)", p.established?(p.due?"Move due":"Move not due"):(p.dir?"Cycle starting":"No cycle"), paceTxt],
+    ["Member guidance", `${g.n} doc${g.n===1?"":"s"} · lean ${sgn(gdir)}`,
+     `Average signal for the next meeting: hike ${pct(g.g_up)}, hold ${pct(g.g_hold)}, cut ${pct(g.g_down)} (the rest is "no specific guidance"). Pace: accelerate ${pct(g.p_acc)}, slow/stop ${pct(g.p_slow)}.`],
+    ["Hawkishness shift", `${sgn(hk.change)} vs prior window`, `Core members' average pairwise score this window: ${sgn(hk.level)} (−10…+10 scale).`],
+    ["Inflation vs projections", inf.d_be==null?"–":`${sgn(100*inf.d_be,0)}bp since ${fmtDate(inf.proj_date)}`,
+     `Market-implied inflation (Bund €i breakeven, ${inf.maturity?inf.maturity.slice(0,4):""} bond) moved ${inf.d_be==null?"–":sgn(100*inf.d_be,0)+"bp"} since the last staff projections. Latest HICP (${inf.hicp_month.slice(0,7)}) ${inf.hicp}% vs ${inf.proj[inf.hicp_month.slice(0,4)]??"–"}% projected for ${inf.hicp_month.slice(0,4)}.`],
+  ];
+  document.getElementById("nm-cards").innerHTML=cards.map(([t,b,w])=>`<div class="nm-card"><h4>${t}</h4><div class="big">${b}</div><div class="why">${w}</div></div>`).join("");
+  // guidance docs
+  const docs=g.docs||[];
+  document.getElementById("nm-docs").innerHTML=docs.length?
+    `<tr><th class="l">Date</th><th class="l">Speaker</th><th>Hike</th><th>Hold</th><th>Cut</th><th>No signal</th><th class="l">Pace lean</th><th>Score</th><th class="l">Document · key passage</th></tr>`+
+    docs.slice().reverse().map(d=>{
+      const x=d.next||{}, pc=d.pace||{};
+      const up=(x.hike||0)+(x.larger_hike||0), dn=(x.cut||0)+(x.larger_cut||0);
+      const pl=Object.entries(pc).filter(([k])=>k!=="no_signal").sort((a,b)=>b[1]-a[1])[0];
+      return `<tr><td class="l">${d.date}</td><td class="l">${d.speaker}<br><span style="color:var(--mut)">${d.type}</span></td>`+
+        `<td>${bar(up,HAWK)}</td><td>${bar(x.hold,"#59616b")}</td><td>${bar(dn,DOVE)}</td><td>${pct(x.no_signal)}</td>`+
+        `<td class="l">${pl&&pl[1]>0.2?pl[0].replace(/_/g," ")+" "+pct(pl[1]):"–"}</td><td>${d.score==null?"–":sgn(d.score,1)}</td>`+
+        `<td class="nm-quote"><a href="${d.url}" target="_blank">${d.title}</a><br>${d.quote||""}</td></tr>`;}).join("")
+    :`<tr><td class="l">No core-member speeches or interviews in the window yet.</td></tr>`;
+  // breakeven chart
+  const s=inf.series||[];
+  const lb=baseLayout(); lb.yaxis={...lb.yaxis,title:"breakeven inflation (%)",ticksuffix:"%"}; lb.xaxis={...lb.xaxis,type:"date"};
+  lb.shapes=[{type:"line",x0:inf.proj_date,x1:inf.proj_date,yref:"paper",y0:0,y1:1,line:{color:"#f2c744",dash:"dot"}}];
+  lb.annotations=[{x:inf.proj_date,yref:"paper",y:1,text:"last projections",showarrow:false,font:{color:"#f2c744",size:11},xanchor:"left",yanchor:"top"}];
+  Plotly.react("nm-be",[{x:s.map(r=>r[0]),y:s.map(r=>r[1]),mode:"lines",line:{color:"#e377c2",width:2},
+    name:"breakeven",hovertemplate:"%{x|%d %b %Y}: %{y:.2f}%<extra></extra>"}],lb,{displayModeBar:false});
+  document.getElementById("nm-benote").innerHTML=
+    `German inflation-linked Bunds pay euro-area HICP (ex tobacco); nominal minus real yield on the same maturity is the market's expected inflation. `+
+    `Staff projected HICP of ${Object.entries(inf.proj).map(([y,v])=>v+"% in "+y).join(", ")} (${fmtDate(inf.proj_from)}). `+
+    `The framework uses the <i>change</i> since the projections: a large move suggests the projection "paradigm" has shifted before the next forecast round.`;
+  // approaches
+  const ap=NM.approaches;
+  document.getElementById("nm-appr").innerHTML=
+    `<tr><th class="l">Approach</th><th>Cut</th><th>Hold</th><th>Hike</th><th>Log loss</th><th>Brier</th><th>Accuracy</th><th>Log loss at turning points</th></tr>`+
+    ap.map(a=>`<tr class="${a.name===h.model?"best":""}"><td class="l">${a.name}${a.name===h.model?" ★":""}</td>`+
+      `<td>${pct(a.probs.cut)}</td><td>${pct(a.probs.hold)}</td><td>${pct(a.probs.hike)}</td>`+
+      `<td>${a.log_loss.toFixed(3)}</td><td>${a.brier.toFixed(3)}</td><td>${pct(a.accuracy)}</td><td>${a.log_loss_turn==null?"–":a.log_loss_turn.toFixed(3)}</td></tr>`).join("");
+  const nT=ap[0].n_turn, nB=ap[0].n;
+  document.getElementById("nm-apprnote").innerHTML=
+    `Each approach is refitted before every meeting using only earlier meetings (expanding window), then scored on that meeting; ${nB} meetings from 2013. `+
+    `Lower log loss / Brier is better. "Turning points" are the ${nT} meetings whose decision differed from the previous one — the hard cases. `+
+    `With ~30 rate moves in the sample, differences of a few hundredths are within noise.`;
+  // backtest chart
+  const bs=NM.backtest.series;
+  const lt=baseLayout(); lt.xaxis={...lt.xaxis,type:"date"}; lt.yaxis={...lt.yaxis,tickformat:".0%",range:[0,1],title:"probability"};
+  lt.legend={orientation:"h",y:1.12}; lt.showlegend=true;
+  const mk=(o,c,nm)=>({x:bs.filter(r=>r.outcome===o).map(r=>r.date),y:bs.filter(r=>r.outcome===o).map(()=>o>0?1.0:0.0),
+    mode:"markers",marker:{color:c,size:8,symbol:o>0?"triangle-down":"triangle-up"},name:nm});
+  Plotly.react("nm-bt",[
+    {x:bs.map(r=>r.date),y:bs.map(r=>r.p[2]),mode:"lines",line:{color:HAWK,width:1.6,shape:"hv"},name:"P(hike)"},
+    {x:bs.map(r=>r.date),y:bs.map(r=>r.p[0]),mode:"lines",line:{color:DOVE,width:1.6,shape:"hv"},name:"P(cut)"},
+    mk(1,HAWK,"actual hike"),mk(-1,DOVE,"actual cut")],lt,{displayModeBar:false});
+  // pace history
+  const ph=NM.pace_history, c=ph.counts, L=ph.language||{};
+  const lang=k=>L[k]?`guidance lean ${sgn(L[k].g_dir)}, accelerate ${pct(L[k].p_acc)}, slow/stop ${pct(L[k].p_slow)}`:"–";
+  document.getElementById("nm-pace").innerHTML=
+    `In an established cycle (two or more moves in one direction), when a move was <b>due</b> on the cadence the ECB moved `+
+    `<b>${c.due.moved}</b> times, held ${c.due.held} and reversed ${c.due.reversed}. When a move was <b>not due</b>, it held `+
+    `<b>${c.not_due.held}</b> times and accelerated ${c.not_due.moved}.<br>`+
+    `Members' language beforehand — accelerations (${(ph.cases.accelerated||[]).join(", ")||"none"}): ${lang("accelerated")}; `+
+    `cycle stopped when due (${(ph.cases.stopped_when_due||[]).join(", ")||"none"}): ${lang("stopped_when_due")}; `+
+    `moved on cadence: ${lang("on_cadence_move")}; held on cadence: ${lang("on_cadence_hold")}.`;
+}
+
 Promise.all([
   fetch("data.json",{cache:"no-store"}).then(r=>r.json()),
-  fetch("macro.json",{cache:"no-store"}).then(r=>r.ok?r.json():{series:{}}).catch(()=>({series:{}}))
-]).then(([j,m])=>{
-  DATA=j.speeches||j; META=j.meta||{}; MACRO=(m&&m.series)||{};
+  fetch("macro.json",{cache:"no-store"}).then(r=>r.ok?r.json():{series:{}}).catch(()=>({series:{}})),
+  fetch("nextmeeting.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null)
+]).then(([j,m,nm])=>{
+  DATA=j.speeches||j; META=j.meta||{}; MACRO=(m&&m.series)||{}; NM=nm;
   applyRoster(META.roster);
   document.getElementById("meth").innerHTML=METH;
   setHeader(); fillSpeakers(); fillSpeakerTypes(); renderTimeline();

@@ -210,6 +210,10 @@ def main():
     meta = write_data_json(pool, args.out)
     print(f"wrote {args.out}: {meta['n_speeches']} speeches (scored_ok={scored_ok})")
     subprocess.run([sys.executable, str(ROOT / "scripts" / "build_macro.py")], check=False)
+    # next-meeting probability framework (classifies new core-member docs with Jev,
+    # refreshes Bund breakevens); never blocks the deploy
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "next_meeting.py")]
+                   + ([] if args.dry_run else ["--refresh"]), check=False)
     print("daily update complete")
 
 

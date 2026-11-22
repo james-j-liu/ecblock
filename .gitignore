@@ -9,6 +9,8 @@ data/processed/*
 !data/processed/corpus.jsonl
 !data/processed/tournament_log.jsonl
 !data/processed/roster_state.json
+!data/processed/guidance.jsonl
+!data/processed/breakeven.json
 *.log
 _*.txt
 .DS_Store

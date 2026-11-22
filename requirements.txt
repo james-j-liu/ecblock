@@ -11,3 +11,4 @@ tqdm==4.67.1
 langdetect==1.0.9
 trafilatura==2.0.0
 pypdf>=5.0
+scikit-learn>=1.4

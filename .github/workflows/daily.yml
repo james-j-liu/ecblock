@@ -42,6 +42,8 @@ jobs:
             git pull --rebase origin main && git push && break
             echo "push attempt $i failed; retrying"; sleep 15
           done
+      - name: Check the site's scripts and data before deploying
+        run: python scripts/check_site.py
       - name: Upload site for Pages
         uses: actions/upload-pages-artifact@v3
         with:

@@ -29,6 +29,19 @@ from .calendar import Meeting
 from .guidance import is_core
 
 CLASSES = (-1, 0, 1)
+
+# The President and the chief economist set the tone of guidance. (role, name, from, to)
+LEADERS = [("president", "Jean-Claude Trichet", "2003-11-01", "2011-10-31"),
+           ("president", "Mario Draghi", "2011-11-01", "2019-10-31"),
+           ("president", "Christine Lagarde", "2019-11-01", "2099-12-31"),
+           ("chief economist", "Jürgen Stark", "2006-06-01", "2011-12-31"),
+           ("chief economist", "Peter Praet", "2012-01-01", "2019-05-31"),
+           ("chief economist", "Philip R. Lane", "2019-06-01", "2099-12-31")]
+LEADER_WEIGHT = 1.0      # weight of their documents in the member-guidance average
+
+
+def is_leader(speaker: str, date: str) -> bool:
+    return any(n == speaker and a <= date <= b for _, n, a, b in LEADERS)
 N = lambda mu: (mu - 50) / 5            # site scale
 
 
@@ -109,10 +122,11 @@ def build_rows(meetings: list[Meeting], corpus, guidance: dict, be_data: dict,
         f["run_len"] = float(np.sign(last) * min(run, 5))
         # guidance (soft votes over core docs in the window)
         g = [guidance[s.id] for s in win if s.id in guidance]
+        wts = [LEADER_WEIGHT if is_leader(x["speaker"], x["date"]) else 1.0 for x in g]
         if g:
-            f["g_up"] = float(np.mean([x["next"].get("hike", 0) + x["next"].get("larger_hike", 0) for x in g]))
-            f["g_down"] = float(np.mean([x["next"].get("cut", 0) + x["next"].get("larger_cut", 0) for x in g]))
-            f["g_hold"] = float(np.mean([x["next"].get("hold", 0) for x in g]))
+            f["g_up"] = float(np.average([x["next"].get("hike", 0) + x["next"].get("larger_hike", 0) for x in g], weights=wts))
+            f["g_down"] = float(np.average([x["next"].get("cut", 0) + x["next"].get("larger_cut", 0) for x in g], weights=wts))
+            f["g_hold"] = float(np.average([x["next"].get("hold", 0) for x in g], weights=wts))
             f["g_large"] = float(np.mean([x["next"].get("larger_hike", 0) + x["next"].get("larger_cut", 0) for x in g]))
             f["p_acc"] = float(np.mean([x["pace"].get("accelerate", 0) for x in g]))
             f["p_slow"] = float(np.mean([x["pace"].get("slow_or_pause", 0) + x["pace"].get("end_or_reverse", 0) for x in g]))
@@ -126,6 +140,12 @@ def build_rows(meetings: list[Meeting], corpus, guidance: dict, be_data: dict,
             f.update(g_up=0.0, g_down=0.0, g_hold=0.0, g_large=0.0, p_acc=0.0, p_slow=0.0, p_end=0.0,
                      g_up_max=0.0, g_down_max=0.0, g_hold_max=0.0)
         f["g_n"] = len(g)
+        # the President's and chief economist's own guidance, as separate inputs
+        lg = [x for x in g if is_leader(x["speaker"], x["date"])]
+        f["l_up"] = float(np.mean([x["next"].get("hike", 0) + x["next"].get("larger_hike", 0) for x in lg])) if lg else 0.0
+        f["l_down"] = float(np.mean([x["next"].get("cut", 0) + x["next"].get("larger_cut", 0) for x in lg])) if lg else 0.0
+        f["l_hold"] = float(np.mean([x["next"].get("hold", 0) for x in lg])) if lg else 0.0
+        f["l_n"] = float(len(lg) > 0)
         # council guidance: the previous meeting's statement + press-conference Q&A,
         # and any account of it published before this meeting's quiet period
         cg = [council[s.id] for s in cdocs
@@ -236,6 +256,7 @@ GROUPS = {
     "inertia (first move, pause, run length)": ["first_up", "first_down", "paused_up", "paused_down", "run_len"],
     "hawkishness shift": ["hawk", "d_hawk"],
     "council guidance": ["c_up", "c_down", "c_hold", "c_slow"],
+    "leadership guidance (President + chief economist)": ["l_up", "l_down", "l_hold", "l_n"],
 }
 # Core = what the Council and its core members actually say about the next decision.
 # Pace and inflation-vs-projections were in the core but hurt out-of-sample (pace is

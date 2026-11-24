@@ -139,6 +139,12 @@ def main():
     projm = next((m for m in reversed(meetings) if m.projection and m.proj and m.date < nxt.date), None)
     hm = sorted(hicp)[-1]
 
+    # what the model was reading at each meeting (for the misses table)
+    sig = {r.meeting.date: {"g_up": round(r.feats["g_up"], 2), "g_down": round(r.feats["g_down"], 2),
+                            "g_hold": round(r.feats["g_hold"], 2), "g_n": r.feats["g_n"],
+                            "c_up": round(r.feats["c_up"], 2), "c_down": round(r.feats["c_down"], 2),
+                            "c_hold": round(r.feats["c_hold"], 2), "prev": r.feats["last_up"] - r.feats["last_down"]}
+           for r in rows}
     out = {
         "generated": today,
         "next_meeting": {"date": nxt.date, "projection": nxt.projection, "quiet_start": nxt.quiet_start,
@@ -166,7 +172,7 @@ def main():
         },
         "pace_history": fw.pace_history(rows),
         "backtest": {"start": "2013-01-01",
-                     "series": [{"date": d, "outcome": y, "p": [round(x, 3) for x in p]}
+                     "series": [{"date": d, "outcome": y, "p": [round(x, 3) for x in p], **sig.get(d, {})}
                                 for d, y, p in bt["preds"][best]]},
     }
     Path(args.out).write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")

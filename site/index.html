@@ -132,6 +132,11 @@
     <div class="nm-note" id="nm-calnote"></div>
     <div class="nm-h">Backtest: headline model's probabilities vs what the ECB did</div>
     <div id="nm-bt" class="nm-plot"></div>
+    <div class="nm-h" style="font-size:13px">Meetings the model got wrong</div>
+    <div class="nm-note">Each meeting where the model's most likely outcome was not what the ECB did, newest first.
+    "Members" and "Council" show what the model was reading: the average hike / hold / cut signal in core members'
+    speeches between meetings, and in the previous meeting's statement, Q&amp;A and account.</div>
+    <div id="nm-wrap2" style="overflow-x:auto"><table class="nm" id="nm-miss"></table></div>
     <div class="nm-h">Does the ECB stick to an established pace?</div>
     <div class="nm-note" id="nm-pace"></div>
   </section>
@@ -742,6 +747,23 @@ function renderNext(){
     {x:bs.map(r=>r.date),y:bs.map(r=>r.p[2]),mode:"lines",line:{color:HAWK,width:1.6,shape:"hv"},name:"P(hike)"},
     {x:bs.map(r=>r.date),y:bs.map(r=>r.p[0]),mode:"lines",line:{color:DOVE,width:1.6,shape:"hv"},name:"P(cut)"},
     mk(1,HAWK,"actual hike"),mk(-1,DOVE,"actual cut")],lt,{displayModeBar:false});
+  // misses table
+  const L3={"-1":"cut","0":"hold","1":"hike"}, CL=[-1,0,1];
+  const lean=(u,h,d)=>u==null?"–":`<span style="color:${HAWK}">${pct(u)}</span> / ${pct(h)} / <span style="color:${DOVE}">${pct(d)}</span>`;
+  const miss=bs.filter(r=>CL[r.p.indexOf(Math.max(...r.p))]!==r.outcome).slice().reverse();
+  const hits=bs.length-miss.length;
+  document.getElementById("nm-miss").innerHTML=
+    `<tr><th class="l">Meeting</th><th class="l">ECB did</th><th class="l">Model said</th><th>Cut / hold / hike</th>`+
+    `<th>P(what happened)</th><th class="l">Previous decision</th><th>Members: hike / hold / cut</th><th>Council: hike / hold / cut</th></tr>`+
+    miss.map(r=>{const said=CL[r.p.indexOf(Math.max(...r.p))], pa=r.p[CL.indexOf(r.outcome)];
+      return `<tr><td class="l">${fmtDate(r.date)}</td><td class="l" style="color:${r.outcome>0?HAWK:r.outcome<0?DOVE:INK}">${L3[r.outcome]}</td>`+
+      `<td class="l">${L3[said]}</td><td>${pct(r.p[0])} / ${pct(r.p[1])} / ${pct(r.p[2])}</td>`+
+      `<td style="color:${pa<0.2?HAWK:INK}">${pct(pa)}</td><td class="l">${r.prev==null?"–":L3[r.prev]}</td>`+
+      `<td>${lean(r.g_up,r.g_hold,r.g_down)}${r.g_n!=null?` <span style="color:var(--mut)">(${r.g_n})</span>`:""}</td>`+
+      `<td>${lean(r.c_up,r.c_hold,r.c_down)}</td></tr>`;}).join("")+
+    `<tr><td class="l" colspan="8" style="color:var(--mut)">${miss.length} wrong of ${bs.length} meetings since ${NM.backtest.start.slice(0,4)} (${pct(hits/bs.length)} right). `+
+    `Probabilities are the real-time backtest: the model refitted before each meeting using only earlier meetings. `+
+    `Members' figures in brackets are the number of core-member documents in the window.</td></tr>`;
   // pace history
   const ph=NM.pace_history, c=ph.counts, L=ph.language||{};
   const lang=k=>L[k]?`guidance lean ${sgn(L[k].g_dir)}, accelerate ${pct(L[k].p_acc)}, slow/stop ${pct(L[k].p_slow)}`:"–";

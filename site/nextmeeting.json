@@ -1,12 +1,12 @@
 {
- "generated": "2026-11-23",
+ "generated": "2026-11-24",
  "next_meeting": {
   "date": "2026-12-17",
   "projection": true,
   "quiet_start": "2026-12-10",
   "window": [
    "2026-10-29",
-   "2026-11-23"
+   "2026-11-24"
   ],
   "last_decision": 0,
   "last_decision_date": "2026-10-29"
@@ -14,29 +14,29 @@
  "headline": {
   "model": "Selected (significance-checked)",
   "probs": {
-   "cut_large": 0.0003,
-   "cut": 0.0103,
-   "hold": 0.0906,
-   "hike": 0.8699,
-   "hike_large": 0.0288
+   "cut_large": 0.0005,
+   "cut": 0.0155,
+   "hold": 0.1335,
+   "hike": 0.8232,
+   "hike_large": 0.0272
   },
   "probs3": {
-   "cut": 0.0107,
-   "hold": 0.0906,
-   "hike": 0.8987
+   "cut": 0.016,
+   "hold": 0.1335,
+   "hike": 0.8504
   },
   "range80": {
    "cut": [
-    0.005,
-    0.033
+    0.006,
+    0.054
    ],
    "hold": [
-    0.029,
-    0.265
+    0.032,
+    0.364
    ],
    "hike": [
-    0.718,
-    0.961
+    0.611,
+    0.954
    ]
   }
  },
@@ -105,11 +105,11 @@
    },
    {
     "group": "hawkishness shift",
-    "log_loss": 0.3517,
-    "change": -0.0249,
+    "log_loss": 0.3513,
+    "change": -0.0253,
     "ci95": [
-     -0.0658,
-     0.0111
+     -0.0672,
+     0.0119
     ],
     "kept": false
    }
@@ -276,9 +276,9 @@
     "p_slow"
    ],
    "probs": {
-    "cut": 0.0319,
-    "hold": 0.3422,
-    "hike": 0.6259
+    "cut": 0.0419,
+    "hold": 0.484,
+    "hike": 0.4741
    },
    "n": 121,
    "log_loss": 0.4,
@@ -296,16 +296,16 @@
     "cyc_down"
    ],
    "probs": {
-    "cut": 0.0581,
-    "hold": 0.2933,
-    "hike": 0.6486
+    "cut": 0.0644,
+    "hold": 0.3021,
+    "hike": 0.6336
    },
    "n": 121,
    "log_loss": 0.571,
    "brier": 0.345,
    "accuracy": 0.769,
    "n_turn": 24,
-   "log_loss_turn": 1.394
+   "log_loss_turn": 1.4
   },
   {
    "name": "Inflation vs projections",
@@ -316,9 +316,9 @@
     "cyc_down"
    ],
    "probs": {
-    "cut": 0.0268,
-    "hold": 0.1214,
-    "hike": 0.8518
+    "cut": 0.0241,
+    "hold": 0.1014,
+    "hike": 0.8746
    },
    "n": 121,
    "log_loss": 0.545,
@@ -350,16 +350,16 @@
     "hicp_gap"
    ],
    "probs": {
-    "cut": 0.0074,
-    "hold": 0.0672,
-    "hike": 0.9254
+    "cut": 0.0086,
+    "hold": 0.067,
+    "hike": 0.9244
    },
    "n": 121,
-   "log_loss": 0.399,
-   "brier": 0.228,
+   "log_loss": 0.398,
+   "brier": 0.227,
    "accuracy": 0.835,
    "n_turn": 24,
-   "log_loss_turn": 1.278
+   "log_loss_turn": 1.282
   },
   {
    "name": "Combined without pace",
@@ -380,16 +380,16 @@
     "hicp_gap"
    ],
    "probs": {
-    "cut": 0.0266,
-    "hold": 0.2326,
-    "hike": 0.7408
+    "cut": 0.0352,
+    "hold": 0.257,
+    "hike": 0.7078
    },
    "n": 121,
    "log_loss": 0.397,
    "brier": 0.216,
    "accuracy": 0.851,
    "n_turn": 24,
-   "log_loss_turn": 1.252
+   "log_loss_turn": 1.256
   },
   {
    "name": "Selected (significance-checked)",
@@ -414,9 +414,9 @@
     "hicp_gap"
    ],
    "probs": {
-    "cut": 0.0107,
-    "hold": 0.0906,
-    "hike": 0.8987
+    "cut": 0.016,
+    "hold": 0.1335,
+    "hike": 0.8504
    },
    "n": 121,
    "log_loss": 0.455,
@@ -527,7 +527,7 @@
      "type": "speech",
      "title": "Navigating stormy waters: reflections on monetary policy",
      "url": "https://www.ecb.europa.eu/press/key/date/2026/html/ecb.sp261105_1~5e97d9d5a0.en.html",
-     "score": 2.83,
+     "score": 2.77,
      "next": {
       "larger_hike": 0.0,
       "hike": 0.05,
@@ -552,7 +552,7 @@
      "type": "interview",
      "title": "Interview with Yomiuri Shimbun",
      "url": "https://www.ecb.europa.eu/press/inter/date/2026/html/ecb.in261107~e7b86fc4ce.en.html",
-     "score": 1.69,
+     "score": 1.68,
      "next": {
       "larger_hike": 0.0,
       "hike": 0.13,
@@ -577,7 +577,7 @@
      "type": "interview",
      "title": "“Turn the interest rate screw”",
      "url": "https://www.bundesbank.de/en/press/interviews/-turn-the-interest-rate-screw--964984",
-     "score": 2.32,
+     "score": 2.29,
      "next": {
       "larger_hike": 0.0,
       "hike": 0.85,
@@ -594,25 +594,50 @@
       "no_signal": 0.01
      },
      "quote": "“Turn the interest rate screw” Interview with tagesschau.de The Interview was conducted by Steffen Clement from Hessischer Rundfunk for “plusminus”, a business programme on German TV. … Possibly, we’ll have to act again on that front and turn the interest rate screw."
+    },
+    {
+     "date": "2026-11-24",
+     "speaker": "Boris Vujčić",
+     "inst": "European Central Bank",
+     "type": "speech",
+     "title": "Resilience in an age of shocks: lessons from central and eastern Europe",
+     "url": "https://www.ecb.europa.eu/press/key/date/2026/html/ecb.sp261124~17928e5456.en.html",
+     "score": 1.32,
+     "next": {
+      "larger_hike": 0.0,
+      "hike": 0.0,
+      "hold": 0.0,
+      "cut": 0.0,
+      "larger_cut": 0.0,
+      "no_signal": 1.0
+     },
+     "pace": {
+      "accelerate": 0.0,
+      "maintain": 0.0,
+      "slow_or_pause": 0.0,
+      "end_or_reverse": 0.0,
+      "no_signal": 1.0
+     },
+     "quote": "When we look at fiscal flows, budget deficits have increased across much of the region in recent years, reflecting a combination of higher social and investment spending, rising public sector wage bills, higher interest rate expenditure and, increasingly, greater defence spending. … [ 10 ] At the same time, geopolitical tensions can disrupt key trade routes and increase the costs and uncertainty associated with complex global value chains."
     }
    ],
-   "g_up": 0.3433333333333333,
-   "g_down": 0.0033333333333333335,
-   "g_hold": 0.023333333333333334,
-   "p_acc": 0.08,
-   "p_slow": 0.056666666666666664,
-   "n": 3
+   "g_up": 0.2575,
+   "g_down": 0.0025,
+   "g_hold": 0.0175,
+   "p_acc": 0.06,
+   "p_slow": 0.042499999999999996,
+   "n": 4
   },
   "hawk": {
-   "level": 2.28,
-   "change": 0.27
+   "level": 2.02,
+   "change": 0.03
   },
   "inflation": {
    "proj_date": "2026-09-10",
-   "d_be": -0.451,
+   "d_be": -0.515,
    "isin": "DE0001030559",
    "maturity": "2030-04-15",
-   "be_now": 1.905,
+   "be_now": 1.841,
    "be_at_proj": 2.356,
    "series": [
     [
@@ -1170,6 +1195,10 @@
     [
      "2026-11-23",
      1.905
+    ],
+    [
+     "2026-11-24",
+     1.841
     ]
    ],
    "proj": {

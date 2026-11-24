@@ -14,29 +14,29 @@
  "headline": {
   "model": "Selected (significance-checked)",
   "probs": {
-   "cut_large": 0.0012,
-   "cut": 0.0364,
-   "hold": 0.2886,
-   "hike": 0.6522,
-   "hike_large": 0.0216
+   "cut_large": 0.0031,
+   "cut": 0.0369,
+   "hold": 0.2981,
+   "hike": 0.6103,
+   "hike_large": 0.0516
   },
   "probs3": {
-   "cut": 0.0376,
-   "hold": 0.2886,
-   "hike": 0.6738
+   "cut": 0.04,
+   "hold": 0.2981,
+   "hike": 0.6619
   },
   "range80": {
    "cut": [
-    0.019,
-    0.072
+    0.014,
+    0.08
    ],
    "hold": [
-    0.139,
-    0.555
+    0.131,
+    0.628
    ],
    "hike": [
-    0.364,
-    0.833
+    0.304,
+    0.844
    ]
   }
  },
@@ -45,40 +45,40 @@
   "baseline_log_loss": 0.5672,
   "n": 121,
   "core": {
-   "log_loss": 0.289,
-   "change": -0.2782,
+   "log_loss": 0.305,
+   "change": -0.2621,
    "ci95": [
-    -0.421,
-    -0.144
+    -0.4157,
+    -0.118
    ],
    "significant": true,
    "groups": [
     {
      "group": "member guidance",
-     "contribution": -0.0412,
+     "contribution": 0.004,
      "ci95": [
-      -0.1098,
-      0.0283
+      -0.0665,
+      0.0741
      ],
      "significant_alone": false
     },
     {
      "group": "council guidance",
-     "contribution": -0.0316,
+     "contribution": -0.0671,
      "ci95": [
-      -0.0816,
-      0.0168
+      -0.1507,
+      0.0255
      ],
      "significant_alone": false
     }
    ],
    "realtime": {
     "baseline_log_loss": 0.5699,
-    "log_loss": 0.3984,
-    "change": -0.1715,
+    "log_loss": 0.3207,
+    "change": -0.2492,
     "ci95": [
-     -0.3217,
-     -0.0244
+     -0.4202,
+     -0.0863
     ],
     "significant": true
    }
@@ -86,51 +86,51 @@
   "addons": [
    {
     "group": "market pricing",
-    "log_loss": 0.2985,
-    "change": 0.0095,
+    "log_loss": 0.3281,
+    "change": 0.0231,
     "ci95": [
-     -0.0195,
-     0.0412
+     0.0018,
+     0.0482
     ],
     "kept": false
    },
    {
     "group": "pace",
-    "log_loss": 0.3327,
-    "change": 0.0437,
+    "log_loss": 0.3437,
+    "change": 0.0386,
     "ci95": [
-     -0.0041,
-     0.1046
+     0.0075,
+     0.077
     ],
     "kept": false
    },
    {
     "group": "inflation vs projections",
-    "log_loss": 0.3094,
-    "change": 0.0204,
+    "log_loss": 0.3135,
+    "change": 0.0085,
     "ci95": [
-     -0.0036,
-     0.0481
+     -0.006,
+     0.0236
     ],
     "kept": false
    },
    {
     "group": "inertia (first move, pause, run length)",
-    "log_loss": 0.3204,
-    "change": 0.0314,
+    "log_loss": 0.3603,
+    "change": 0.0553,
     "ci95": [
-     -0.0152,
-     0.0802
+     0.0121,
+     0.1031
     ],
     "kept": false
    },
    {
     "group": "hawkishness shift",
-    "log_loss": 0.2985,
-    "change": 0.0095,
+    "log_loss": 0.3253,
+    "change": 0.0202,
     "ci95": [
-     -0.0084,
-     0.0306
+     0.0011,
+     0.0431
     ],
     "kept": false
    }
@@ -151,26 +151,26 @@
    "c_hold",
    "c_slow"
   ],
-  "log_loss": 0.289
+  "log_loss": 0.305
  },
  "calibration": [
   {
    "band": "0%–80%",
-   "n": 13,
-   "stated": 0.599,
-   "right": 0.385
+   "n": 18,
+   "stated": 0.68,
+   "right": 0.611
   },
   {
    "band": "80%–95%",
-   "n": 27,
-   "stated": 0.896,
-   "right": 0.815
+   "n": 24,
+   "stated": 0.92,
+   "right": 0.875
   },
   {
    "band": "95%–100%",
-   "n": 81,
-   "stated": 0.973,
-   "right": 0.975
+   "n": 79,
+   "stated": 0.976,
+   "right": 0.962
   }
  ],
  "inertia": {
@@ -293,16 +293,16 @@
     "p_slow"
    ],
    "probs": {
-    "cut": 0.0419,
-    "hold": 0.484,
-    "hike": 0.4741
+    "cut": 0.0286,
+    "hold": 0.4119,
+    "hike": 0.5595
    },
    "n": 121,
-   "log_loss": 0.4,
-   "brier": 0.226,
+   "log_loss": 0.408,
+   "brier": 0.224,
    "accuracy": 0.86,
    "n_turn": 24,
-   "log_loss_turn": 1.184
+   "log_loss_turn": 1.15
   },
   {
    "name": "Council guidance",
@@ -313,16 +313,16 @@
     "c_slow"
    ],
    "probs": {
-    "cut": 0.0443,
-    "hold": 0.2683,
-    "hike": 0.6875
+    "cut": 0.0661,
+    "hold": 0.287,
+    "hike": 0.6469
    },
    "n": 121,
-   "log_loss": 0.333,
-   "brier": 0.191,
-   "accuracy": 0.86,
+   "log_loss": 0.27,
+   "brier": 0.151,
+   "accuracy": 0.884,
    "n_turn": 24,
-   "log_loss_turn": 0.921
+   "log_loss_turn": 0.691
   },
   {
    "name": "Market pricing (1y/2y Bund vs deposit rate)",
@@ -349,16 +349,16 @@
    "name": "Symmetric (move, then direction)",
    "features": "symmetric",
    "probs": {
-    "cut": 0.0639,
-    "hold": 0.1611,
-    "hike": 0.775
+    "cut": 0.0653,
+    "hold": 0.1403,
+    "hike": 0.7944
    },
    "n": 121,
-   "log_loss": 0.355,
-   "brier": 0.192,
-   "accuracy": 0.86,
+   "log_loss": 0.323,
+   "brier": 0.171,
+   "accuracy": 0.893,
    "n_turn": 24,
-   "log_loss_turn": 0.915
+   "log_loss_turn": 0.827
   },
   {
    "name": "Hawkishness shift",
@@ -423,16 +423,16 @@
     "hicp_gap"
    ],
    "probs": {
-    "cut": 0.0086,
-    "hold": 0.067,
-    "hike": 0.9244
+    "cut": 0.0084,
+    "hold": 0.0496,
+    "hike": 0.9419
    },
    "n": 121,
-   "log_loss": 0.398,
-   "brier": 0.227,
+   "log_loss": 0.426,
+   "brier": 0.249,
    "accuracy": 0.835,
    "n_turn": 24,
-   "log_loss_turn": 1.282
+   "log_loss_turn": 1.178
   },
   {
    "name": "Combined without pace",
@@ -453,16 +453,16 @@
     "hicp_gap"
    ],
    "probs": {
-    "cut": 0.0352,
-    "hold": 0.257,
-    "hike": 0.7078
+    "cut": 0.0331,
+    "hold": 0.2375,
+    "hike": 0.7294
    },
    "n": 121,
-   "log_loss": 0.397,
-   "brier": 0.216,
-   "accuracy": 0.851,
+   "log_loss": 0.417,
+   "brier": 0.237,
+   "accuracy": 0.835,
    "n_turn": 24,
-   "log_loss_turn": 1.256
+   "log_loss_turn": 1.177
   },
   {
    "name": "Selected (significance-checked)",
@@ -483,16 +483,16 @@
     "c_slow"
    ],
    "probs": {
-    "cut": 0.0376,
-    "hold": 0.2886,
-    "hike": 0.6738
+    "cut": 0.04,
+    "hold": 0.2981,
+    "hike": 0.6619
    },
    "n": 121,
-   "log_loss": 0.398,
-   "brier": 0.222,
+   "log_loss": 0.321,
+   "brier": 0.183,
    "accuracy": 0.86,
    "n_turn": 24,
-   "log_loss_turn": 1.145
+   "log_loss_turn": 0.705
   }
  ],
  "signals": {
@@ -598,19 +598,19 @@
      "url": "https://www.ecb.europa.eu/press/press_conference/monetary-policy-statement/2026/html/ecb.is261029~5c5ffe99e5.en.html",
      "score": 1.67,
      "next": {
-      "larger_hike": 0.0,
-      "hike": 0.12,
-      "hold": 0.09,
-      "cut": 0.0,
-      "larger_cut": 0.0,
-      "no_signal": 0.79
+      "larger_hike": 0.0092,
+      "hike": 0.0598,
+      "hold": 0.1349,
+      "cut": 0.0064,
+      "larger_cut": 0.0035,
+      "no_signal": 0.7864
      },
      "pace": {
-      "accelerate": 0.0,
-      "maintain": 0.85,
-      "slow_or_pause": 0.05,
-      "end_or_reverse": 0.02,
-      "no_signal": 0.08
+      "accelerate": 0.0122,
+      "maintain": 0.087,
+      "slow_or_pause": 0.1876,
+      "end_or_reverse": 0.0171,
+      "no_signal": 0.6961
      },
      "quote": "We will follow a data-dependent and meeting-by-meeting approach to determining the appropriate monetary policy stance. … More volatile and risk-averse financial markets, together with higher long-term interest rates, could weigh on demand and thereby lower inflation as well."
     },
@@ -623,19 +623,19 @@
      "url": "https://www.ecb.europa.eu/press/press_conference/monetary-policy-statement/2026/html/ecb.is261029~5c5ffe99e5.en.html",
      "score": 2.44,
      "next": {
-      "larger_hike": 0.0,
-      "hike": 0.75,
-      "hold": 0.15,
-      "cut": 0.0,
-      "larger_cut": 0.0,
-      "no_signal": 0.1
+      "larger_hike": 0.0101,
+      "hike": 0.6912,
+      "hold": 0.1133,
+      "cut": 0.005,
+      "larger_cut": 0.0024,
+      "no_signal": 0.178
      },
      "pace": {
-      "accelerate": 0.03,
-      "maintain": 0.74,
-      "slow_or_pause": 0.23,
-      "end_or_reverse": 0.0,
-      "no_signal": 0.0
+      "accelerate": 0.0402,
+      "maintain": 0.2807,
+      "slow_or_pause": 0.6054,
+      "end_or_reverse": 0.0186,
+      "no_signal": 0.0551
      },
      "quote": "So energy prices have increased inflation, long-term financing costs have qualified the magnitude of that increase, and it's in those circumstances – which we will be very attentive to in the weeks to come, and with another special focus on underlying inflation – that we will make our decision in December. … I would like to know if this no-hiking thing, because of tighter financial conditions in the markets, is one thing only for this meeting, or if it will happen to continue throughout November, the ECB could not hike or keep interest rates unchanged again because of that?"
     },
@@ -648,19 +648,19 @@
      "url": "https://www.ecb.europa.eu/press/key/date/2026/html/ecb.sp261105_1~5e97d9d5a0.en.html",
      "score": 2.77,
      "next": {
-      "larger_hike": 0.0,
-      "hike": 0.05,
-      "hold": 0.03,
-      "cut": 0.01,
-      "larger_cut": 0.0,
-      "no_signal": 0.91
+      "larger_hike": 0.0096,
+      "hike": 0.061,
+      "hold": 0.08,
+      "cut": 0.0056,
+      "larger_cut": 0.0035,
+      "no_signal": 0.8403
      },
      "pace": {
-      "accelerate": 0.03,
-      "maintain": 0.28,
-      "slow_or_pause": 0.01,
-      "end_or_reverse": 0.08,
-      "no_signal": 0.6
+      "accelerate": 0.0182,
+      "maintain": 0.0632,
+      "slow_or_pause": 0.0367,
+      "end_or_reverse": 0.0124,
+      "no_signal": 0.8695
      },
      "quote": "[ 1 ] We have moved from a world in which inflation was persistently too low to one marked by recurrent inflationary shocks; from a historically accommodative monetary policy stance to the fastest tightening cycle in the history of the ECB; and from a deeply integrated global economy to one increasingly shaped by fragmentation and geopolitical tensions. … Policy rates can be adjusted swiftly at each meeting, whereas large-scale asset purchases continue to provide monetary accommodation long after the purchases themselves have ended (Slide 6, right-hand side)."
     },
@@ -673,19 +673,19 @@
      "url": "https://www.ecb.europa.eu/press/inter/date/2026/html/ecb.in261107~e7b86fc4ce.en.html",
      "score": 1.68,
      "next": {
-      "larger_hike": 0.0,
-      "hike": 0.13,
-      "hold": 0.04,
-      "cut": 0.0,
-      "larger_cut": 0.0,
-      "no_signal": 0.83
+      "larger_hike": 0.0158,
+      "hike": 0.305,
+      "hold": 0.1128,
+      "cut": 0.0123,
+      "larger_cut": 0.0052,
+      "no_signal": 0.5489
      },
      "pace": {
-      "accelerate": 0.02,
-      "maintain": 0.68,
-      "slow_or_pause": 0.07,
-      "end_or_reverse": 0.01,
-      "no_signal": 0.22
+      "accelerate": 0.0228,
+      "maintain": 0.2999,
+      "slow_or_pause": 0.0926,
+      "end_or_reverse": 0.0199,
+      "no_signal": 0.5648
      },
      "quote": "Long-term interest rates are also higher. … So, learning from this, do you think there is a need for an interest rate hike before any secondary effects become apparent?"
     },
@@ -698,19 +698,19 @@
      "url": "https://www.bundesbank.de/en/press/interviews/-turn-the-interest-rate-screw--964984",
      "score": 2.29,
      "next": {
-      "larger_hike": 0.0,
-      "hike": 0.85,
-      "hold": 0.0,
-      "cut": 0.0,
-      "larger_cut": 0.0,
-      "no_signal": 0.15
+      "larger_hike": 0.0631,
+      "hike": 0.8308,
+      "hold": 0.0213,
+      "cut": 0.0038,
+      "larger_cut": 0.0018,
+      "no_signal": 0.0791
      },
      "pace": {
-      "accelerate": 0.19,
-      "maintain": 0.8,
-      "slow_or_pause": 0.0,
-      "end_or_reverse": 0.0,
-      "no_signal": 0.01
+      "accelerate": 0.177,
+      "maintain": 0.7187,
+      "slow_or_pause": 0.0456,
+      "end_or_reverse": 0.0131,
+      "no_signal": 0.0456
      },
      "quote": "“Turn the interest rate screw” Interview with tagesschau.de The Interview was conducted by Steffen Clement from Hessischer Rundfunk for “plusminus”, a business programme on German TV. … Possibly, we’ll have to act again on that front and turn the interest rate screw."
     },
@@ -723,28 +723,28 @@
      "url": "https://www.ecb.europa.eu/press/key/date/2026/html/ecb.sp261124~17928e5456.en.html",
      "score": 1.32,
      "next": {
-      "larger_hike": 0.0,
-      "hike": 0.0,
-      "hold": 0.0,
-      "cut": 0.0,
-      "larger_cut": 0.0,
-      "no_signal": 1.0
+      "larger_hike": 0.0014,
+      "hike": 0.0049,
+      "hold": 0.0102,
+      "cut": 0.0026,
+      "larger_cut": 0.0013,
+      "no_signal": 0.9796
      },
      "pace": {
-      "accelerate": 0.0,
-      "maintain": 0.0,
-      "slow_or_pause": 0.0,
-      "end_or_reverse": 0.0,
-      "no_signal": 1.0
+      "accelerate": 0.0029,
+      "maintain": 0.0111,
+      "slow_or_pause": 0.0066,
+      "end_or_reverse": 0.0042,
+      "no_signal": 0.9752
      },
      "quote": "When we look at fiscal flows, budget deficits have increased across much of the region in recent years, reflecting a combination of higher social and investment spending, rising public sector wage bills, higher interest rate expenditure and, increasingly, greater defence spending. … [ 10 ] At the same time, geopolitical tensions can disrupt key trade routes and increase the costs and uncertainty associated with complex global value chains."
     }
    ],
-   "g_up": 0.2575,
-   "g_down": 0.0025,
-   "g_hold": 0.0175,
-   "p_acc": 0.06,
-   "p_slow": 0.042499999999999996,
+   "g_up": 0.32289999999999996,
+   "g_down": 0.009025,
+   "g_hold": 0.056075,
+   "p_acc": 0.055224999999999996,
+   "p_slow": 0.05777500000000001,
    "n": 4
   },
   "hawk": {
@@ -1346,24 +1346,24 @@
   },
   "language": {
    "accelerated": {
-    "g_dir": 0.133,
-    "p_acc": 0.002,
-    "p_slow": 0.398
+    "g_dir": 0.197,
+    "p_acc": 0.013,
+    "p_slow": 0.136
    },
    "on_cadence_hold": {
-    "g_dir": 0.061,
-    "p_acc": 0.036,
-    "p_slow": 0.088
+    "g_dir": 0.098,
+    "p_acc": 0.027,
+    "p_slow": 0.079
    },
    "stopped_when_due": {
-    "g_dir": 0.052,
-    "p_acc": 0.065,
-    "p_slow": 0.161
+    "g_dir": 0.096,
+    "p_acc": 0.028,
+    "p_slow": 0.163
    },
    "on_cadence_move": {
-    "g_dir": 0.425,
-    "p_acc": 0.048,
-    "p_slow": 0.214
+    "g_dir": 0.481,
+    "p_acc": 0.066,
+    "p_slow": 0.147
    }
   },
   "cases": {
@@ -1410,1309 +1410,1309 @@
     "date": "2013-01-09",
     "outcome": 0,
     "p": [
-     0.048,
-     0.943,
+     0.07,
+     0.921,
      0.009
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.17,
+    "g_up": 0.02,
+    "g_down": 0.02,
+    "g_hold": 0.16,
     "g_n": 8,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.96,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.59,
     "prev": 0
    },
    {
     "date": "2013-02-06",
     "outcome": 0,
     "p": [
-     0.033,
-     0.96,
+     0.039,
+     0.954,
      0.007
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.09,
+    "g_up": 0.01,
+    "g_down": 0.02,
+    "g_hold": 0.14,
     "g_n": 4,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.97,
+    "c_up": 0.02,
+    "c_down": 0.04,
+    "c_hold": 0.67,
     "prev": 0
    },
    {
     "date": "2013-03-06",
     "outcome": 0,
     "p": [
-     0.082,
-     0.91,
-     0.008
+     0.046,
+     0.948,
+     0.006
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.24,
+    "g_up": 0.01,
+    "g_down": 0.01,
+    "g_hold": 0.23,
     "g_n": 7,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.99,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.73,
     "prev": 0
    },
    {
     "date": "2013-04-03",
     "outcome": 0,
     "p": [
-     0.03,
-     0.963,
+     0.038,
+     0.955,
      0.007
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.01,
+    "g_up": 0.01,
+    "g_down": 0.01,
+    "g_hold": 0.05,
     "g_n": 3,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.86,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.56,
     "prev": 0
    },
    {
     "date": "2013-05-01",
     "outcome": -1,
     "p": [
-     0.061,
-     0.931,
-     0.008
+     0.089,
+     0.902,
+     0.009
     ],
-    "g_up": 0.0,
+    "g_up": 0.01,
     "g_down": 0.01,
-    "g_hold": 0.11,
+    "g_hold": 0.14,
     "g_n": 6,
-    "c_up": 0.0,
-    "c_down": 0.05,
-    "c_hold": 0.68,
+    "c_up": 0.01,
+    "c_down": 0.07,
+    "c_hold": 0.43,
     "prev": 0
    },
    {
     "date": "2013-06-05",
     "outcome": 0,
     "p": [
-     0.448,
-     0.54,
-     0.012
+     0.179,
+     0.812,
+     0.008
     ],
-    "g_up": 0.0,
-    "g_down": 0.06,
-    "g_hold": 0.08,
+    "g_up": 0.01,
+    "g_down": 0.03,
+    "g_hold": 0.12,
     "g_n": 9,
-    "c_up": 0.0,
-    "c_down": 0.17,
-    "c_hold": 0.21,
+    "c_up": 0.01,
+    "c_down": 0.1,
+    "c_hold": 0.24,
     "prev": -1
    },
    {
     "date": "2013-07-03",
     "outcome": 0,
     "p": [
-     0.039,
-     0.955,
-     0.006
+     0.114,
+     0.878,
+     0.007
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.4,
+    "g_up": 0.01,
+    "g_down": 0.02,
+    "g_hold": 0.28,
     "g_n": 11,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.91,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.56,
     "prev": 0
    },
    {
     "date": "2013-07-31",
     "outcome": 0,
     "p": [
-     0.191,
-     0.804,
+     0.214,
+     0.78,
      0.006
     ],
-    "g_up": 0.0,
-    "g_down": 0.03,
-    "g_hold": 0.72,
+    "g_up": 0.01,
+    "g_down": 0.04,
+    "g_hold": 0.53,
     "g_n": 10,
-    "c_up": 0.0,
-    "c_down": 0.17,
-    "c_hold": 0.81,
+    "c_up": 0.01,
+    "c_down": 0.1,
+    "c_hold": 0.69,
     "prev": 0
    },
    {
     "date": "2013-09-04",
     "outcome": 0,
     "p": [
-     0.019,
-     0.978,
-     0.003
+     0.101,
+     0.893,
+     0.005
     ],
-    "g_up": 0.0,
-    "g_down": 0.07,
-    "g_hold": 0.17,
+    "g_up": 0.01,
+    "g_down": 0.05,
+    "g_hold": 0.15,
     "g_n": 4,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.99,
+    "c_up": 0.01,
+    "c_down": 0.05,
+    "c_hold": 0.79,
     "prev": 0
    },
    {
     "date": "2013-10-01",
     "outcome": 0,
     "p": [
-     0.02,
-     0.977,
-     0.004
+     0.145,
+     0.849,
+     0.006
     ],
-    "g_up": 0.0,
-    "g_down": 0.01,
-    "g_hold": 0.69,
+    "g_up": 0.01,
+    "g_down": 0.03,
+    "g_hold": 0.52,
     "g_n": 9,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.97,
+    "c_up": 0.02,
+    "c_down": 0.1,
+    "c_hold": 0.6,
     "prev": 0
    },
    {
     "date": "2013-11-06",
     "outcome": -1,
     "p": [
-     0.031,
-     0.965,
-     0.004
+     0.137,
+     0.856,
+     0.006
     ],
-    "g_up": 0.0,
+    "g_up": 0.01,
     "g_down": 0.04,
-    "g_hold": 0.4,
+    "g_hold": 0.26,
     "g_n": 10,
-    "c_up": 0.0,
-    "c_down": 0.03,
-    "c_hold": 0.81,
+    "c_up": 0.02,
+    "c_down": 0.06,
+    "c_hold": 0.59,
     "prev": 0
    },
    {
     "date": "2013-12-04",
     "outcome": 0,
     "p": [
-     0.28,
-     0.711,
-     0.009
+     0.211,
+     0.783,
+     0.005
     ],
-    "g_up": 0.0,
-    "g_down": 0.04,
-    "g_hold": 0.38,
+    "g_up": 0.02,
+    "g_down": 0.07,
+    "g_hold": 0.27,
     "g_n": 14,
-    "c_up": 0.0,
-    "c_down": 0.22,
-    "c_hold": 0.58,
+    "c_up": 0.01,
+    "c_down": 0.16,
+    "c_hold": 0.43,
     "prev": -1
    },
    {
     "date": "2014-01-08",
     "outcome": 0,
     "p": [
-     0.012,
-     0.984,
-     0.004
+     0.035,
+     0.962,
+     0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.06,
-    "g_hold": 0.51,
+    "g_up": 0.01,
+    "g_down": 0.07,
+    "g_hold": 0.38,
     "g_n": 11,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.99,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.77,
     "prev": 0
    },
    {
     "date": "2014-02-05",
     "outcome": 0,
     "p": [
-     0.051,
-     0.946,
-     0.004
+     0.025,
+     0.972,
+     0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.06,
-    "g_hold": 0.68,
+    "g_up": 0.01,
+    "g_down": 0.05,
+    "g_hold": 0.46,
     "g_n": 4,
-    "c_up": 0.0,
-    "c_down": 0.02,
-    "c_hold": 0.9,
+    "c_up": 0.01,
+    "c_down": 0.05,
+    "c_hold": 0.63,
     "prev": 0
    },
    {
     "date": "2014-03-05",
     "outcome": 0,
     "p": [
-     0.049,
-     0.946,
-     0.005
+     0.081,
+     0.915,
+     0.004
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.66,
+    "g_up": 0.01,
+    "g_down": 0.03,
+    "g_hold": 0.44,
     "g_n": 7,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.91,
+    "c_up": 0.01,
+    "c_down": 0.09,
+    "c_hold": 0.65,
     "prev": 0
    },
    {
     "date": "2014-04-02",
     "outcome": 0,
     "p": [
-     0.03,
-     0.966,
+     0.041,
+     0.956,
      0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.03,
-    "g_hold": 0.74,
+    "g_up": 0.01,
+    "g_down": 0.06,
+    "g_hold": 0.47,
     "g_n": 7,
-    "c_up": 0.0,
-    "c_down": 0.02,
-    "c_hold": 0.98,
+    "c_up": 0.01,
+    "c_down": 0.05,
+    "c_hold": 0.83,
     "prev": 0
    },
    {
     "date": "2014-05-07",
     "outcome": 0,
     "p": [
-     0.226,
-     0.761,
-     0.013
+     0.488,
+     0.506,
+     0.006
     ],
-    "g_up": 0.0,
-    "g_down": 0.07,
-    "g_hold": 0.38,
+    "g_up": 0.01,
+    "g_down": 0.1,
+    "g_hold": 0.25,
     "g_n": 10,
-    "c_up": 0.0,
-    "c_down": 0.33,
-    "c_hold": 0.52,
+    "c_up": 0.01,
+    "c_down": 0.09,
+    "c_hold": 0.51,
     "prev": 0
    },
    {
     "date": "2014-06-04",
     "outcome": -1,
     "p": [
-     0.007,
-     0.99,
-     0.003
+     0.972,
+     0.026,
+     0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.21,
-    "g_hold": 0.03,
+    "g_up": 0.02,
+    "g_down": 0.26,
+    "g_hold": 0.07,
     "g_n": 6,
-    "c_up": 0.0,
-    "c_down": 0.52,
-    "c_hold": 0.46,
+    "c_up": 0.01,
+    "c_down": 0.45,
+    "c_hold": 0.41,
     "prev": 0
    },
    {
     "date": "2014-07-02",
     "outcome": 0,
     "p": [
-     0.014,
-     0.982,
-     0.004
+     0.023,
+     0.975,
+     0.003
     ],
-    "g_up": 0.0,
+    "g_up": 0.01,
     "g_down": 0.09,
-    "g_hold": 0.38,
+    "g_hold": 0.3,
     "g_n": 5,
-    "c_up": 0.0,
-    "c_down": 0.12,
-    "c_hold": 0.85,
+    "c_up": 0.01,
+    "c_down": 0.06,
+    "c_hold": 0.73,
     "prev": -1
    },
    {
     "date": "2014-08-06",
     "outcome": 0,
     "p": [
-     0.018,
-     0.979,
+     0.02,
+     0.977,
      0.003
     ],
-    "g_up": 0.01,
-    "g_down": 0.05,
-    "g_hold": 0.58,
+    "g_up": 0.03,
+    "g_down": 0.06,
+    "g_hold": 0.49,
     "g_n": 14,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.01,
+    "c_down": 0.03,
+    "c_hold": 0.9,
     "prev": 0
    },
    {
     "date": "2014-09-03",
     "outcome": -1,
     "p": [
-     0.014,
-     0.983,
-     0.003
+     0.004,
+     0.994,
+     0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.1,
-    "g_hold": 0.54,
+    "g_up": 0.02,
+    "g_down": 0.25,
+    "g_hold": 0.14,
     "g_n": 1,
-    "c_up": 0.0,
-    "c_down": 0.06,
-    "c_hold": 0.86,
+    "c_up": 0.01,
+    "c_down": 0.04,
+    "c_hold": 0.73,
     "prev": 0
    },
    {
     "date": "2014-10-01",
     "outcome": 0,
     "p": [
-     0.045,
-     0.95,
-     0.005
+     0.05,
+     0.948,
+     0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.08,
-    "g_hold": 0.36,
+    "g_up": 0.01,
+    "g_down": 0.12,
+    "g_hold": 0.32,
     "g_n": 12,
-    "c_up": 0.0,
-    "c_down": 0.24,
-    "c_hold": 0.53,
+    "c_up": 0.01,
+    "c_down": 0.06,
+    "c_hold": 0.64,
     "prev": -1
    },
    {
     "date": "2014-10-25",
     "outcome": 0,
     "p": [
-     0.068,
-     0.928,
-     0.004
+     0.301,
+     0.693,
+     0.006
     ],
-    "g_up": 0.0,
-    "g_down": 0.1,
-    "g_hold": 0.31,
+    "g_up": 0.01,
+    "g_down": 0.09,
+    "g_hold": 0.23,
     "g_n": 8,
-    "c_up": 0.0,
-    "c_down": 0.07,
-    "c_hold": 0.78,
+    "c_up": 0.02,
+    "c_down": 0.05,
+    "c_hold": 0.57,
     "prev": 0
    },
    {
     "date": "2014-11-05",
     "outcome": 0,
     "p": [
-     0.774,
-     0.214,
-     0.012
+     0.702,
+     0.291,
+     0.007
     ],
-    "g_up": 0.0,
-    "g_down": 0.06,
-    "g_hold": 0.04,
+    "g_up": 0.01,
+    "g_down": 0.2,
+    "g_hold": 0.14,
     "g_n": 1,
-    "c_up": 0.0,
-    "c_down": 0.07,
-    "c_hold": 0.2,
+    "c_up": 0.03,
+    "c_down": 0.05,
+    "c_hold": 0.3,
     "prev": 0
    },
    {
     "date": "2014-12-03",
     "outcome": 0,
     "p": [
-     0.184,
-     0.81,
-     0.006
+     0.154,
+     0.841,
+     0.005
     ],
-    "g_up": 0.0,
-    "g_down": 0.03,
-    "g_hold": 0.34,
+    "g_up": 0.01,
+    "g_down": 0.06,
+    "g_hold": 0.28,
     "g_n": 11,
-    "c_up": 0.0,
-    "c_down": 0.08,
-    "c_hold": 0.72,
+    "c_up": 0.02,
+    "c_down": 0.05,
+    "c_hold": 0.48,
     "prev": 0
    },
    {
     "date": "2015-01-21",
     "outcome": 0,
     "p": [
-     0.07,
-     0.925,
-     0.004
+     0.889,
+     0.108,
+     0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.07,
-    "g_hold": 0.12,
+    "g_up": 0.01,
+    "g_down": 0.19,
+    "g_hold": 0.14,
     "g_n": 11,
-    "c_up": 0.0,
-    "c_down": 0.11,
-    "c_hold": 0.7,
+    "c_up": 0.01,
+    "c_down": 0.08,
+    "c_hold": 0.47,
     "prev": 0
    },
    {
     "date": "2015-03-04",
     "outcome": 0,
     "p": [
-     0.036,
-     0.96,
-     0.003
+     0.122,
+     0.874,
+     0.004
     ],
-    "g_up": 0.0,
-    "g_down": 0.07,
-    "g_hold": 0.27,
+    "g_up": 0.01,
+    "g_down": 0.1,
+    "g_hold": 0.23,
     "g_n": 12,
-    "c_up": 0.0,
-    "c_down": 0.05,
-    "c_hold": 0.81,
+    "c_up": 0.01,
+    "c_down": 0.04,
+    "c_hold": 0.58,
     "prev": 0
    },
    {
     "date": "2015-04-14",
     "outcome": 0,
     "p": [
-     0.005,
-     0.993,
-     0.002
+     0.042,
+     0.955,
+     0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.02,
-    "g_hold": 0.35,
+    "g_up": 0.01,
+    "g_down": 0.04,
+    "g_hold": 0.31,
     "g_n": 14,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.89,
+    "c_up": 0.02,
+    "c_down": 0.02,
+    "c_hold": 0.78,
     "prev": 0
    },
    {
     "date": "2015-06-02",
     "outcome": 0,
     "p": [
-     0.059,
-     0.938,
-     0.004
+     0.062,
+     0.935,
+     0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.03,
-    "g_hold": 0.44,
+    "g_up": 0.02,
+    "g_down": 0.04,
+    "g_hold": 0.31,
     "g_n": 15,
-    "c_up": 0.0,
+    "c_up": 0.02,
     "c_down": 0.02,
-    "c_hold": 0.94,
+    "c_hold": 0.73,
     "prev": 0
    },
    {
     "date": "2015-07-15",
     "outcome": 0,
     "p": [
-     0.061,
-     0.935,
+     0.075,
+     0.922,
      0.004
     ],
-    "g_up": 0.0,
-    "g_down": 0.01,
-    "g_hold": 0.29,
+    "g_up": 0.01,
+    "g_down": 0.03,
+    "g_hold": 0.25,
     "g_n": 12,
-    "c_up": 0.0,
+    "c_up": 0.02,
     "c_down": 0.01,
-    "c_hold": 0.98,
+    "c_hold": 0.86,
     "prev": 0
    },
    {
     "date": "2015-09-02",
     "outcome": 0,
     "p": [
-     0.031,
-     0.966,
+     0.045,
+     0.952,
      0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.01,
-    "g_hold": 0.35,
+    "g_up": 0.02,
+    "g_down": 0.03,
+    "g_hold": 0.21,
     "g_n": 1,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.89,
+    "c_up": 0.02,
+    "c_down": 0.02,
+    "c_hold": 0.7,
     "prev": 0
    },
    {
     "date": "2015-10-21",
     "outcome": 0,
     "p": [
-     0.069,
-     0.927,
+     0.068,
+     0.928,
      0.004
     ],
-    "g_up": 0.0,
-    "g_down": 0.02,
-    "g_hold": 0.33,
+    "g_up": 0.02,
+    "g_down": 0.03,
+    "g_hold": 0.24,
     "g_n": 15,
-    "c_up": 0.0,
-    "c_down": 0.02,
-    "c_hold": 0.83,
+    "c_up": 0.01,
+    "c_down": 0.03,
+    "c_hold": 0.49,
     "prev": 0
    },
    {
     "date": "2015-12-02",
     "outcome": -1,
     "p": [
-     0.258,
-     0.736,
-     0.006
+     0.665,
+     0.331,
+     0.004
     ],
-    "g_up": 0.0,
-    "g_down": 0.13,
-    "g_hold": 0.23,
+    "g_up": 0.01,
+    "g_down": 0.14,
+    "g_hold": 0.24,
     "g_n": 19,
-    "c_up": 0.0,
-    "c_down": 0.22,
-    "c_hold": 0.21,
+    "c_up": 0.01,
+    "c_down": 0.2,
+    "c_hold": 0.32,
     "prev": 0
    },
    {
     "date": "2016-01-20",
     "outcome": 0,
     "p": [
-     0.85,
-     0.147,
+     0.145,
+     0.853,
      0.003
     ],
-    "g_up": 0.0,
+    "g_up": 0.02,
     "g_down": 0.17,
-    "g_hold": 0.34,
+    "g_hold": 0.26,
     "g_n": 13,
-    "c_up": 0.0,
-    "c_down": 0.34,
-    "c_hold": 0.34,
+    "c_up": 0.01,
+    "c_down": 0.08,
+    "c_hold": 0.43,
     "prev": -1
    },
    {
     "date": "2016-03-09",
     "outcome": -1,
     "p": [
-     0.693,
-     0.302,
-     0.005
+     0.964,
+     0.034,
+     0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.08,
-    "g_hold": 0.17,
+    "g_up": 0.02,
+    "g_down": 0.09,
+    "g_hold": 0.16,
     "g_n": 16,
-    "c_up": 0.0,
+    "c_up": 0.01,
     "c_down": 0.44,
-    "c_hold": 0.22,
+    "c_hold": 0.19,
     "prev": 0
    },
    {
     "date": "2016-04-20",
     "outcome": 0,
     "p": [
-     0.024,
-     0.974,
+     0.067,
+     0.931,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.06,
-    "g_hold": 0.25,
+    "g_up": 0.01,
+    "g_down": 0.07,
+    "g_hold": 0.18,
     "g_n": 19,
-    "c_up": 0.0,
+    "c_up": 0.01,
     "c_down": 0.1,
-    "c_hold": 0.87,
+    "c_hold": 0.72,
     "prev": -1
    },
    {
     "date": "2016-06-01",
     "outcome": 0,
     "p": [
-     0.022,
-     0.976,
+     0.03,
+     0.967,
      0.002
     ],
-    "g_up": 0.0,
+    "g_up": 0.02,
     "g_down": 0.03,
-    "g_hold": 0.54,
+    "g_hold": 0.37,
     "g_n": 10,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.98,
+    "c_up": 0.01,
+    "c_down": 0.03,
+    "c_hold": 0.84,
     "prev": 0
    },
    {
     "date": "2016-07-20",
     "outcome": 0,
     "p": [
-     0.069,
-     0.927,
+     0.084,
+     0.913,
      0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.01,
-    "g_hold": 0.37,
+    "g_up": 0.01,
+    "g_down": 0.04,
+    "g_hold": 0.28,
     "g_n": 18,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.97,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.74,
     "prev": 0
    },
    {
     "date": "2016-09-07",
     "outcome": 0,
     "p": [
-     0.073,
-     0.924,
+     0.081,
+     0.916,
      0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.01,
-    "g_hold": 0.32,
+    "g_up": 0.01,
+    "g_down": 0.03,
+    "g_hold": 0.21,
     "g_n": 3,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.86,
+    "c_up": 0.01,
+    "c_down": 0.03,
+    "c_hold": 0.61,
     "prev": 0
    },
    {
     "date": "2016-10-19",
     "outcome": 0,
     "p": [
-     0.019,
-     0.979,
+     0.037,
+     0.96,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.62,
+    "g_up": 0.02,
+    "g_down": 0.03,
+    "g_hold": 0.41,
     "g_n": 23,
-    "c_up": 0.0,
-    "c_down": 0.02,
-    "c_hold": 0.98,
+    "c_up": 0.01,
+    "c_down": 0.04,
+    "c_hold": 0.75,
     "prev": 0
    },
    {
     "date": "2016-12-07",
     "outcome": 0,
     "p": [
-     0.035,
-     0.963,
-     0.002
+     0.059,
+     0.938,
+     0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.48,
+    "g_up": 0.01,
+    "g_down": 0.02,
+    "g_hold": 0.32,
     "g_n": 25,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.99,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.78,
     "prev": 0
    },
    {
     "date": "2017-01-18",
     "outcome": 0,
     "p": [
-     0.004,
-     0.995,
-     0.001
+     0.013,
+     0.985,
+     0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.55,
+    "g_up": 0.02,
+    "g_down": 0.02,
+    "g_hold": 0.27,
     "g_n": 3,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.99,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.76,
     "prev": 0
    },
    {
     "date": "2017-03-08",
     "outcome": 0,
     "p": [
-     0.006,
-     0.993,
-     0.001
+     0.018,
+     0.98,
+     0.002
     ],
-    "g_up": 0.01,
-    "g_down": 0.0,
-    "g_hold": 0.57,
+    "g_up": 0.03,
+    "g_down": 0.02,
+    "g_hold": 0.42,
     "g_n": 19,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.82,
     "prev": 0
    },
    {
     "date": "2017-04-26",
     "outcome": 0,
     "p": [
-     0.028,
-     0.97,
+     0.023,
+     0.975,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.7,
+    "g_up": 0.01,
+    "g_down": 0.01,
+    "g_hold": 0.59,
     "g_n": 19,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.88,
     "prev": 0
    },
    {
     "date": "2017-06-08",
     "outcome": 0,
     "p": [
-     0.015,
-     0.983,
+     0.026,
+     0.972,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.64,
+    "g_up": 0.02,
+    "g_down": 0.02,
+    "g_hold": 0.4,
     "g_n": 16,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.03,
+    "c_down": 0.03,
+    "c_hold": 0.83,
     "prev": 0
    },
    {
     "date": "2017-07-19",
     "outcome": 0,
     "p": [
-     0.009,
-     0.989,
+     0.012,
+     0.986,
      0.002
     ],
-    "g_up": 0.01,
-    "g_down": 0.0,
-    "g_hold": 0.65,
+    "g_up": 0.04,
+    "g_down": 0.02,
+    "g_hold": 0.48,
     "g_n": 15,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.99,
+    "c_up": 0.04,
+    "c_down": 0.02,
+    "c_hold": 0.85,
     "prev": 0
    },
    {
     "date": "2017-09-07",
     "outcome": 0,
     "p": [
-     0.018,
-     0.98,
+     0.034,
+     0.964,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.5,
+    "g_up": 0.04,
+    "g_down": 0.02,
+    "g_hold": 0.25,
     "g_n": 3,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.99,
+    "c_up": 0.02,
+    "c_down": 0.01,
+    "c_hold": 0.91,
     "prev": 0
    },
    {
     "date": "2017-10-26",
     "outcome": 0,
     "p": [
-     0.01,
-     0.988,
+     0.014,
+     0.984,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.61,
+    "g_up": 0.03,
+    "g_down": 0.02,
+    "g_hold": 0.41,
     "g_n": 22,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.02,
+    "c_down": 0.01,
+    "c_hold": 0.91,
     "prev": 0
    },
    {
     "date": "2017-12-14",
     "outcome": 0,
     "p": [
-     0.009,
-     0.99,
-     0.002
+     0.028,
+     0.969,
+     0.003
     ],
-    "g_up": 0.05,
-    "g_down": 0.0,
-    "g_hold": 0.61,
+    "g_up": 0.09,
+    "g_down": 0.02,
+    "g_hold": 0.45,
     "g_n": 19,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.02,
+    "c_down": 0.01,
+    "c_hold": 0.94,
     "prev": 0
    },
    {
     "date": "2018-01-25",
     "outcome": 0,
     "p": [
-     0.004,
-     0.995,
-     0.001
+     0.01,
+     0.989,
+     0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.41,
+    "g_up": 0.03,
+    "g_down": 0.01,
+    "g_hold": 0.27,
     "g_n": 5,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.02,
+    "c_down": 0.01,
+    "c_hold": 0.93,
     "prev": 0
    },
    {
     "date": "2018-03-08",
     "outcome": 0,
     "p": [
-     0.032,
-     0.966,
+     0.015,
+     0.984,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.64,
+    "g_up": 0.02,
+    "g_down": 0.01,
+    "g_hold": 0.52,
     "g_n": 14,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.02,
+    "c_down": 0.01,
+    "c_hold": 0.93,
     "prev": 0
    },
    {
     "date": "2018-04-26",
     "outcome": 0,
     "p": [
-     0.033,
-     0.965,
+     0.011,
+     0.987,
      0.002
     ],
-    "g_up": 0.02,
-    "g_down": 0.0,
-    "g_hold": 0.72,
+    "g_up": 0.03,
+    "g_down": 0.01,
+    "g_hold": 0.54,
     "g_n": 18,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.02,
+    "c_down": 0.01,
+    "c_hold": 0.92,
     "prev": 0
    },
    {
     "date": "2018-06-14",
     "outcome": 0,
     "p": [
-     0.015,
-     0.983,
+     0.02,
+     0.978,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.45,
+    "g_up": 0.03,
+    "g_down": 0.01,
+    "g_hold": 0.32,
     "g_n": 15,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.04,
+    "c_down": 0.01,
+    "c_hold": 0.79,
     "prev": 0
    },
    {
     "date": "2018-07-26",
     "outcome": 0,
     "p": [
-     0.014,
-     0.985,
-     0.002
+     0.005,
+     0.994,
+     0.001
     ],
-    "g_up": 0.01,
-    "g_down": 0.0,
-    "g_hold": 0.72,
+    "g_up": 0.03,
+    "g_down": 0.01,
+    "g_hold": 0.63,
     "g_n": 14,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.03,
+    "c_down": 0.01,
+    "c_hold": 0.94,
     "prev": 0
    },
    {
     "date": "2018-09-13",
     "outcome": 0,
     "p": [
-     0.016,
-     0.982,
-     0.002
+     0.027,
+     0.97,
+     0.003
     ],
-    "g_up": 0.01,
-    "g_down": 0.0,
-    "g_hold": 0.49,
+    "g_up": 0.11,
+    "g_down": 0.01,
+    "g_hold": 0.31,
     "g_n": 5,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.02,
+    "c_down": 0.01,
+    "c_hold": 0.94,
     "prev": 0
    },
    {
     "date": "2018-10-25",
     "outcome": 0,
     "p": [
-     0.025,
-     0.973,
+     0.011,
+     0.987,
      0.002
     ],
-    "g_up": 0.01,
-    "g_down": 0.0,
-    "g_hold": 0.62,
+    "g_up": 0.03,
+    "g_down": 0.01,
+    "g_hold": 0.53,
     "g_n": 14,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.92,
+    "c_up": 0.04,
+    "c_down": 0.01,
+    "c_hold": 0.82,
     "prev": 0
    },
    {
     "date": "2018-12-13",
     "outcome": 0,
     "p": [
-     0.022,
-     0.976,
+     0.013,
+     0.986,
      0.002
     ],
-    "g_up": 0.01,
-    "g_down": 0.0,
-    "g_hold": 0.51,
+    "g_up": 0.04,
+    "g_down": 0.01,
+    "g_hold": 0.42,
     "g_n": 17,
-    "c_up": 0.01,
-    "c_down": 0.0,
-    "c_hold": 0.93,
+    "c_up": 0.03,
+    "c_down": 0.01,
+    "c_hold": 0.76,
     "prev": 0
    },
    {
     "date": "2019-01-24",
     "outcome": 0,
     "p": [
-     0.017,
-     0.981,
+     0.021,
+     0.976,
      0.002
     ],
-    "g_up": 0.08,
-    "g_down": 0.0,
-    "g_hold": 0.49,
+    "g_up": 0.06,
+    "g_down": 0.01,
+    "g_hold": 0.26,
     "g_n": 6,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.03,
+    "c_down": 0.01,
+    "c_hold": 0.92,
     "prev": 0
    },
    {
     "date": "2019-03-07",
     "outcome": 0,
     "p": [
-     0.013,
-     0.985,
-     0.002
+     0.005,
+     0.993,
+     0.001
     ],
-    "g_up": 0.02,
-    "g_down": 0.0,
-    "g_hold": 0.74,
+    "g_up": 0.04,
+    "g_down": 0.02,
+    "g_hold": 0.56,
     "g_n": 10,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.97,
+    "c_up": 0.02,
+    "c_down": 0.02,
+    "c_hold": 0.82,
     "prev": 0
    },
    {
     "date": "2019-04-10",
     "outcome": 0,
     "p": [
-     0.02,
-     0.978,
+     0.015,
+     0.984,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.61,
+    "g_up": 0.01,
+    "g_down": 0.02,
+    "g_hold": 0.47,
     "g_n": 14,
-    "c_up": 0.01,
-    "c_down": 0.02,
-    "c_hold": 0.94,
+    "c_up": 0.03,
+    "c_down": 0.03,
+    "c_hold": 0.72,
     "prev": 0
    },
    {
     "date": "2019-06-06",
     "outcome": 0,
     "p": [
-     0.033,
-     0.965,
-     0.002
+     0.01,
+     0.989,
+     0.001
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.73,
+    "g_up": 0.02,
+    "g_down": 0.01,
+    "g_hold": 0.59,
     "g_n": 4,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.95,
+    "c_up": 0.02,
+    "c_down": 0.02,
+    "c_hold": 0.75,
     "prev": 0
    },
    {
     "date": "2019-07-25",
     "outcome": 0,
     "p": [
-     0.043,
-     0.955,
-     0.002
+     0.015,
+     0.983,
+     0.001
     ],
-    "g_up": 0.0,
-    "g_down": 0.03,
-    "g_hold": 0.57,
+    "g_up": 0.01,
+    "g_down": 0.05,
+    "g_hold": 0.51,
     "g_n": 13,
-    "c_up": 0.0,
-    "c_down": 0.06,
-    "c_hold": 0.93,
+    "c_up": 0.02,
+    "c_down": 0.05,
+    "c_hold": 0.79,
     "prev": 0
    },
    {
     "date": "2019-09-12",
     "outcome": -1,
     "p": [
-     0.462,
-     0.535,
-     0.003
+     0.806,
+     0.191,
+     0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.18,
-    "g_hold": 0.25,
+    "g_up": 0.01,
+    "g_down": 0.11,
+    "g_hold": 0.28,
     "g_n": 3,
-    "c_up": 0.0,
-    "c_down": 0.41,
-    "c_hold": 0.5,
+    "c_up": 0.02,
+    "c_down": 0.38,
+    "c_hold": 0.41,
     "prev": 0
    },
    {
     "date": "2019-10-24",
     "outcome": 0,
     "p": [
-     0.077,
-     0.921,
+     0.116,
+     0.882,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.13,
-    "g_hold": 0.33,
+    "g_up": 0.02,
+    "g_down": 0.14,
+    "g_hold": 0.22,
     "g_n": 20,
-    "c_up": 0.0,
-    "c_down": 0.17,
-    "c_hold": 0.68,
+    "c_up": 0.02,
+    "c_down": 0.11,
+    "c_hold": 0.34,
     "prev": -1
    },
    {
     "date": "2019-12-12",
     "outcome": 0,
     "p": [
-     0.026,
-     0.972,
+     0.057,
+     0.941,
      0.002
     ],
-    "g_up": 0.01,
-    "g_down": 0.05,
-    "g_hold": 0.43,
+    "g_up": 0.02,
+    "g_down": 0.06,
+    "g_hold": 0.33,
     "g_n": 18,
-    "c_up": 0.0,
-    "c_down": 0.02,
-    "c_hold": 0.97,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.76,
     "prev": 0
    },
    {
     "date": "2020-01-23",
     "outcome": 0,
     "p": [
-     0.012,
-     0.986,
+     0.01,
+     0.989,
      0.001
     ],
-    "g_up": 0.0,
-    "g_down": 0.01,
-    "g_hold": 0.44,
+    "g_up": 0.01,
+    "g_down": 0.03,
+    "g_hold": 0.38,
     "g_n": 5,
-    "c_up": 0.0,
-    "c_down": 0.02,
-    "c_hold": 0.89,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.69,
     "prev": 0
    },
    {
     "date": "2020-03-12",
     "outcome": 0,
     "p": [
-     0.036,
-     0.962,
+     0.051,
+     0.947,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.02,
-    "g_hold": 0.42,
+    "g_up": 0.02,
+    "g_down": 0.03,
+    "g_hold": 0.29,
     "g_n": 22,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.86,
+    "c_up": 0.02,
+    "c_down": 0.03,
+    "c_hold": 0.66,
     "prev": 0
    },
    {
     "date": "2020-04-30",
     "outcome": 0,
     "p": [
-     0.223,
-     0.774,
+     0.553,
+     0.443,
      0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.03,
-    "g_hold": 0.18,
+    "g_up": 0.01,
+    "g_down": 0.12,
+    "g_hold": 0.11,
     "g_n": 17,
-    "c_up": 0.0,
-    "c_down": 0.16,
-    "c_hold": 0.62,
+    "c_up": 0.01,
+    "c_down": 0.13,
+    "c_hold": 0.4,
     "prev": 0
    },
    {
     "date": "2020-06-04",
     "outcome": 0,
     "p": [
-     0.049,
-     0.949,
+     0.127,
+     0.871,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.01,
-    "g_hold": 0.41,
+    "g_up": 0.01,
+    "g_down": 0.09,
+    "g_hold": 0.2,
     "g_n": 13,
-    "c_up": 0.0,
-    "c_down": 0.03,
-    "c_hold": 0.91,
+    "c_up": 0.01,
+    "c_down": 0.05,
+    "c_hold": 0.6,
     "prev": 0
    },
    {
     "date": "2020-07-16",
     "outcome": 0,
     "p": [
-     0.034,
-     0.965,
+     0.071,
+     0.927,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.01,
-    "g_hold": 0.32,
+    "g_up": 0.01,
+    "g_down": 0.07,
+    "g_hold": 0.17,
     "g_n": 25,
-    "c_up": 0.0,
-    "c_down": 0.02,
-    "c_hold": 0.96,
+    "c_up": 0.01,
+    "c_down": 0.04,
+    "c_hold": 0.75,
     "prev": 0
    },
    {
     "date": "2020-09-10",
     "outcome": 0,
     "p": [
-     0.023,
-     0.976,
+     0.033,
+     0.965,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.39,
+    "g_up": 0.01,
+    "g_down": 0.04,
+    "g_hold": 0.27,
     "g_n": 10,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 1.0,
+    "c_up": 0.01,
+    "c_down": 0.02,
+    "c_hold": 0.84,
     "prev": 0
    },
    {
     "date": "2020-10-29",
     "outcome": 0,
     "p": [
-     0.041,
-     0.958,
+     0.053,
+     0.945,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.42,
+    "g_up": 0.01,
+    "g_down": 0.03,
+    "g_hold": 0.26,
     "g_n": 34,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.85,
+    "c_up": 0.01,
+    "c_down": 0.03,
+    "c_hold": 0.61,
     "prev": 0
    },
    {
     "date": "2020-12-10",
     "outcome": 0,
     "p": [
-     0.105,
-     0.892,
+     0.735,
+     0.262,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.05,
-    "g_hold": 0.34,
+    "g_up": 0.01,
+    "g_down": 0.12,
+    "g_hold": 0.22,
     "g_n": 25,
-    "c_up": 0.0,
-    "c_down": 0.11,
-    "c_hold": 0.74,
+    "c_up": 0.02,
+    "c_down": 0.24,
+    "c_hold": 0.5,
     "prev": 0
    },
    {
     "date": "2021-01-21",
     "outcome": 0,
     "p": [
-     0.02,
-     0.979,
-     0.001
+     0.032,
+     0.966,
+     0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.01,
-    "g_hold": 0.61,
+    "g_up": 0.01,
+    "g_down": 0.05,
+    "g_hold": 0.34,
     "g_n": 6,
-    "c_up": 0.0,
-    "c_down": 0.02,
-    "c_hold": 0.96,
+    "c_up": 0.01,
+    "c_down": 0.04,
+    "c_hold": 0.7,
     "prev": 0
    },
    {
     "date": "2021-03-11",
     "outcome": 0,
     "p": [
-     0.025,
-     0.973,
-     0.001
+     0.023,
+     0.975,
+     0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.01,
-    "g_hold": 0.54,
+    "g_up": 0.01,
+    "g_down": 0.03,
+    "g_hold": 0.36,
     "g_n": 19,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.98,
+    "c_up": 0.01,
+    "c_down": 0.03,
+    "c_hold": 0.78,
     "prev": 0
    },
    {
     "date": "2021-04-22",
     "outcome": 0,
     "p": [
-     0.013,
-     0.985,
+     0.018,
+     0.98,
      0.001
     ],
-    "g_up": 0.0,
-    "g_down": 0.01,
-    "g_hold": 0.67,
+    "g_up": 0.01,
+    "g_down": 0.04,
+    "g_hold": 0.38,
     "g_n": 16,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.9,
+    "c_up": 0.02,
+    "c_down": 0.02,
+    "c_hold": 0.8,
     "prev": 0
    },
    {
     "date": "2021-06-10",
     "outcome": 0,
     "p": [
-     0.018,
-     0.981,
+     0.016,
+     0.983,
      0.001
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.58,
+    "g_up": 0.01,
+    "g_down": 0.02,
+    "g_hold": 0.39,
     "g_n": 14,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.97,
+    "c_up": 0.02,
+    "c_down": 0.02,
+    "c_hold": 0.8,
     "prev": 0
    },
    {
@@ -2721,151 +2721,151 @@
     "p": [
      0.021,
      0.977,
-     0.001
+     0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.35,
+    "g_up": 0.02,
+    "g_down": 0.01,
+    "g_hold": 0.28,
     "g_n": 11,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.97,
+    "c_up": 0.02,
+    "c_down": 0.02,
+    "c_hold": 0.8,
     "prev": 0
    },
    {
     "date": "2021-07-22",
     "outcome": 0,
     "p": [
-     0.042,
-     0.956,
+     0.045,
+     0.953,
      0.002
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.37,
+    "g_up": 0.01,
+    "g_down": 0.02,
+    "g_hold": 0.15,
     "g_n": 4,
-    "c_up": 0.0,
+    "c_up": 0.02,
     "c_down": 0.02,
-    "c_hold": 0.61,
+    "c_hold": 0.41,
     "prev": 0
    },
    {
     "date": "2021-09-09",
     "outcome": 0,
     "p": [
-     0.014,
+     0.015,
      0.984,
      0.001
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.55,
+    "g_up": 0.02,
+    "g_down": 0.01,
+    "g_hold": 0.42,
     "g_n": 8,
-    "c_up": 0.0,
-    "c_down": 0.01,
-    "c_hold": 0.82,
+    "c_up": 0.02,
+    "c_down": 0.02,
+    "c_hold": 0.68,
     "prev": 0
    },
    {
     "date": "2021-10-28",
     "outcome": 0,
     "p": [
-     0.013,
-     0.985,
+     0.011,
+     0.987,
      0.001
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.64,
+    "g_up": 0.02,
+    "g_down": 0.01,
+    "g_hold": 0.43,
     "g_n": 16,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.91,
+    "c_up": 0.03,
+    "c_down": 0.02,
+    "c_hold": 0.78,
     "prev": 0
    },
    {
     "date": "2021-12-16",
     "outcome": 0,
     "p": [
-     0.014,
-     0.985,
+     0.006,
+     0.993,
      0.001
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.68,
+    "g_up": 0.02,
+    "g_down": 0.01,
+    "g_hold": 0.6,
     "g_n": 16,
-    "c_up": 0.03,
-    "c_down": 0.0,
-    "c_hold": 0.91,
+    "c_up": 0.04,
+    "c_down": 0.01,
+    "c_hold": 0.8,
     "prev": 0
    },
    {
     "date": "2022-02-03",
     "outcome": 0,
     "p": [
-     0.008,
-     0.99,
-     0.001
+     0.012,
+     0.986,
+     0.002
     ],
-    "g_up": 0.03,
-    "g_down": 0.0,
-    "g_hold": 0.43,
+    "g_up": 0.1,
+    "g_down": 0.02,
+    "g_hold": 0.37,
     "g_n": 11,
-    "c_up": 0.01,
-    "c_down": 0.0,
-    "c_hold": 0.96,
+    "c_up": 0.04,
+    "c_down": 0.01,
+    "c_hold": 0.83,
     "prev": 0
    },
    {
     "date": "2022-03-10",
     "outcome": 0,
     "p": [
-     0.007,
-     0.991,
+     0.011,
+     0.987,
      0.002
     ],
-    "g_up": 0.02,
-    "g_down": 0.0,
-    "g_hold": 0.56,
+    "g_up": 0.1,
+    "g_down": 0.01,
+    "g_hold": 0.33,
     "g_n": 14,
-    "c_up": 0.06,
-    "c_down": 0.0,
-    "c_hold": 0.47,
+    "c_up": 0.07,
+    "c_down": 0.01,
+    "c_hold": 0.41,
     "prev": 0
    },
    {
     "date": "2022-04-14",
     "outcome": 0,
     "p": [
-     0.006,
-     0.992,
-     0.002
+     0.037,
+     0.957,
+     0.006
     ],
-    "g_up": 0.06,
-    "g_down": 0.0,
-    "g_hold": 0.39,
+    "g_up": 0.16,
+    "g_down": 0.01,
+    "g_hold": 0.22,
     "g_n": 14,
-    "c_up": 0.03,
-    "c_down": 0.0,
-    "c_hold": 0.61,
+    "c_up": 0.08,
+    "c_down": 0.01,
+    "c_hold": 0.5,
     "prev": 0
    },
    {
     "date": "2022-06-09",
     "outcome": 0,
     "p": [
-     0.011,
-     0.732,
-     0.256
+     0.019,
+     0.874,
+     0.107
     ],
-    "g_up": 0.47,
-    "g_down": 0.0,
-    "g_hold": 0.2,
+    "g_up": 0.52,
+    "g_down": 0.01,
+    "g_hold": 0.14,
     "g_n": 25,
-    "c_up": 0.33,
-    "c_down": 0.0,
-    "c_hold": 0.18,
+    "c_up": 0.26,
+    "c_down": 0.01,
+    "c_hold": 0.28,
     "prev": 0
    },
    {
@@ -2873,32 +2873,32 @@
     "outcome": 1,
     "p": [
      0.003,
-     0.042,
-     0.955
+     0.067,
+     0.93
     ],
-    "g_up": 0.92,
+    "g_up": 0.93,
     "g_down": 0.0,
-    "g_hold": 0.0,
+    "g_hold": 0.01,
     "g_n": 10,
     "c_up": 0.99,
     "c_down": 0.0,
-    "c_hold": 0.01,
+    "c_hold": 0.0,
     "prev": 0
    },
    {
     "date": "2022-09-08",
     "outcome": 1,
     "p": [
-     0.004,
-     0.958,
-     0.039
+     0.005,
+     0.551,
+     0.445
     ],
-    "g_up": 0.79,
-    "g_down": 0.0,
-    "g_hold": 0.0,
+    "g_up": 0.84,
+    "g_down": 0.01,
+    "g_hold": 0.01,
     "g_n": 7,
-    "c_up": 0.47,
-    "c_down": 0.0,
+    "c_up": 0.73,
+    "c_down": 0.01,
     "c_hold": 0.0,
     "prev": 1
    },
@@ -2907,14 +2907,14 @@
     "outcome": 1,
     "p": [
      0.003,
-     0.027,
-     0.97
+     0.033,
+     0.964
     ],
-    "g_up": 0.71,
-    "g_down": 0.0,
-    "g_hold": 0.0,
+    "g_up": 0.84,
+    "g_down": 0.01,
+    "g_hold": 0.01,
     "g_n": 28,
-    "c_up": 0.99,
+    "c_up": 0.98,
     "c_down": 0.0,
     "c_hold": 0.0,
     "prev": 1
@@ -2924,14 +2924,14 @@
     "outcome": 1,
     "p": [
      0.003,
-     0.047,
-     0.95
+     0.059,
+     0.937
     ],
-    "g_up": 0.7,
+    "g_up": 0.79,
     "g_down": 0.0,
-    "g_hold": 0.0,
+    "g_hold": 0.01,
     "g_n": 29,
-    "c_up": 0.84,
+    "c_up": 0.93,
     "c_down": 0.0,
     "c_hold": 0.0,
     "prev": 1
@@ -2941,14 +2941,14 @@
     "outcome": 1,
     "p": [
      0.003,
-     0.029,
-     0.968
+     0.035,
+     0.962
     ],
-    "g_up": 0.82,
+    "g_up": 0.88,
     "g_down": 0.0,
-    "g_hold": 0.02,
+    "g_hold": 0.01,
     "g_n": 9,
-    "c_up": 1.0,
+    "c_up": 0.99,
     "c_down": 0.0,
     "c_hold": 0.0,
     "prev": 1
@@ -2958,14 +2958,14 @@
     "outcome": 1,
     "p": [
      0.003,
-     0.035,
-     0.963
+     0.041,
+     0.956
     ],
-    "g_up": 0.79,
+    "g_up": 0.83,
     "g_down": 0.0,
-    "g_hold": 0.0,
+    "g_hold": 0.01,
     "g_n": 21,
-    "c_up": 1.0,
+    "c_up": 0.99,
     "c_down": 0.0,
     "c_hold": 0.0,
     "prev": 1
@@ -2974,34 +2974,34 @@
     "date": "2023-05-04",
     "outcome": 1,
     "p": [
-     0.022,
-     0.777,
-     0.201
+     0.028,
+     0.745,
+     0.227
     ],
-    "g_up": 0.41,
-    "g_down": 0.0,
-    "g_hold": 0.02,
+    "g_up": 0.52,
+    "g_down": 0.01,
+    "g_hold": 0.04,
     "g_n": 23,
-    "c_up": 0.25,
-    "c_down": 0.0,
-    "c_hold": 0.0,
+    "c_up": 0.3,
+    "c_down": 0.01,
+    "c_hold": 0.04,
     "prev": 1
    },
    {
     "date": "2023-06-15",
     "outcome": 1,
     "p": [
-     0.003,
-     0.036,
-     0.961
+     0.005,
+     0.064,
+     0.931
     ],
-    "g_up": 0.33,
-    "g_down": 0.0,
-    "g_hold": 0.03,
+    "g_up": 0.46,
+    "g_down": 0.01,
+    "g_hold": 0.05,
     "g_n": 17,
-    "c_up": 0.88,
-    "c_down": 0.0,
-    "c_hold": 0.02,
+    "c_up": 0.78,
+    "c_down": 0.01,
+    "c_hold": 0.01,
     "prev": 1
    },
    {
@@ -3009,185 +3009,185 @@
     "outcome": 1,
     "p": [
      0.004,
-     0.032,
-     0.964
+     0.039,
+     0.957
     ],
-    "g_up": 0.55,
-    "g_down": 0.0,
-    "g_hold": 0.04,
+    "g_up": 0.69,
+    "g_down": 0.01,
+    "g_hold": 0.05,
     "g_n": 16,
-    "c_up": 0.86,
+    "c_up": 0.77,
     "c_down": 0.0,
-    "c_hold": 0.02,
+    "c_hold": 0.01,
     "prev": 1
    },
    {
     "date": "2023-09-14",
     "outcome": 1,
     "p": [
-     0.009,
-     0.924,
-     0.067
+     0.006,
+     0.968,
+     0.026
     ],
-    "g_up": 0.11,
-    "g_down": 0.0,
-    "g_hold": 0.28,
+    "g_up": 0.22,
+    "g_down": 0.01,
+    "g_hold": 0.26,
     "g_n": 5,
-    "c_up": 0.18,
-    "c_down": 0.0,
-    "c_hold": 0.05,
+    "c_up": 0.17,
+    "c_down": 0.01,
+    "c_hold": 0.03,
     "prev": 1
    },
    {
     "date": "2023-10-26",
     "outcome": 0,
     "p": [
-     0.01,
-     0.907,
-     0.082
+     0.009,
+     0.825,
+     0.165
     ],
-    "g_up": 0.06,
-    "g_down": 0.0,
-    "g_hold": 0.26,
+    "g_up": 0.12,
+    "g_down": 0.01,
+    "g_hold": 0.37,
     "g_n": 16,
-    "c_up": 0.09,
-    "c_down": 0.0,
-    "c_hold": 0.77,
+    "c_up": 0.11,
+    "c_down": 0.01,
+    "c_hold": 0.62,
     "prev": 1
    },
    {
     "date": "2023-12-14",
     "outcome": 0,
     "p": [
-     0.011,
-     0.977,
-     0.011
+     0.006,
+     0.97,
+     0.024
     ],
-    "g_up": 0.02,
-    "g_down": 0.0,
-    "g_hold": 0.63,
+    "g_up": 0.08,
+    "g_down": 0.01,
+    "g_hold": 0.55,
     "g_n": 19,
-    "c_up": 0.03,
-    "c_down": 0.0,
-    "c_hold": 0.84,
+    "c_up": 0.04,
+    "c_down": 0.01,
+    "c_hold": 0.79,
     "prev": 0
    },
    {
     "date": "2024-01-25",
     "outcome": 0,
     "p": [
-     0.01,
-     0.986,
-     0.004
+     0.007,
+     0.987,
+     0.006
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.59,
+    "g_up": 0.04,
+    "g_down": 0.01,
+    "g_hold": 0.58,
     "g_n": 6,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.99,
+    "c_up": 0.03,
+    "c_down": 0.01,
+    "c_hold": 0.82,
     "prev": 0
    },
    {
     "date": "2024-03-07",
     "outcome": 0,
     "p": [
-     0.009,
-     0.987,
-     0.004
+     0.011,
+     0.978,
+     0.011
     ],
-    "g_up": 0.01,
-    "g_down": 0.05,
-    "g_hold": 0.49,
+    "g_up": 0.07,
+    "g_down": 0.06,
+    "g_hold": 0.46,
     "g_n": 9,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.83,
+    "c_up": 0.02,
+    "c_down": 0.01,
+    "c_hold": 0.84,
     "prev": 0
    },
    {
     "date": "2024-04-11",
     "outcome": 0,
     "p": [
-     0.005,
-     0.985,
-     0.01
+     0.049,
+     0.944,
+     0.007
     ],
-    "g_up": 0.0,
-    "g_down": 0.06,
-    "g_hold": 0.34,
+    "g_up": 0.02,
+    "g_down": 0.16,
+    "g_hold": 0.26,
     "g_n": 8,
-    "c_up": 0.0,
+    "c_up": 0.02,
     "c_down": 0.03,
-    "c_hold": 0.89,
+    "c_hold": 0.78,
     "prev": 0
    },
    {
     "date": "2024-06-06",
     "outcome": -1,
     "p": [
-     0.89,
-     0.073,
-     0.037
+     0.94,
+     0.052,
+     0.008
     ],
-    "g_up": 0.0,
-    "g_down": 0.46,
-    "g_hold": 0.18,
+    "g_up": 0.01,
+    "g_down": 0.48,
+    "g_hold": 0.17,
     "g_n": 20,
-    "c_up": 0.0,
-    "c_down": 0.23,
-    "c_hold": 0.47,
+    "c_up": 0.01,
+    "c_down": 0.32,
+    "c_hold": 0.32,
     "prev": 0
    },
    {
     "date": "2024-07-18",
     "outcome": 0,
     "p": [
-     0.106,
-     0.867,
-     0.028
+     0.185,
+     0.806,
+     0.009
     ],
-    "g_up": 0.0,
-    "g_down": 0.21,
-    "g_hold": 0.09,
+    "g_up": 0.02,
+    "g_down": 0.22,
+    "g_hold": 0.1,
     "g_n": 13,
-    "c_up": 0.0,
-    "c_down": 0.15,
-    "c_hold": 0.09,
+    "c_up": 0.01,
+    "c_down": 0.08,
+    "c_hold": 0.11,
     "prev": -1
    },
    {
     "date": "2024-09-12",
     "outcome": -1,
     "p": [
-     0.04,
-     0.937,
-     0.023
+     0.143,
+     0.844,
+     0.013
     ],
-    "g_up": 0.0,
-    "g_down": 0.15,
-    "g_hold": 0.32,
+    "g_up": 0.01,
+    "g_down": 0.2,
+    "g_hold": 0.27,
     "g_n": 7,
-    "c_up": 0.0,
-    "c_down": 0.04,
-    "c_hold": 0.52,
+    "c_up": 0.02,
+    "c_down": 0.05,
+    "c_hold": 0.29,
     "prev": 0
    },
    {
     "date": "2024-10-17",
     "outcome": -1,
     "p": [
-     0.066,
-     0.927,
-     0.008
+     0.333,
+     0.655,
+     0.011
     ],
-    "g_up": 0.0,
-    "g_down": 0.13,
+    "g_up": 0.01,
+    "g_down": 0.21,
     "g_hold": 0.06,
     "g_n": 9,
-    "c_up": 0.0,
-    "c_down": 0.15,
+    "c_up": 0.01,
+    "c_down": 0.14,
     "c_hold": 0.04,
     "prev": -1
    },
@@ -3195,16 +3195,16 @@
     "date": "2024-12-12",
     "outcome": -1,
     "p": [
-     0.593,
-     0.402,
-     0.005
+     0.67,
+     0.323,
+     0.007
     ],
-    "g_up": 0.0,
-    "g_down": 0.26,
-    "g_hold": 0.05,
+    "g_up": 0.02,
+    "g_down": 0.27,
+    "g_hold": 0.07,
     "g_n": 27,
-    "c_up": 0.0,
-    "c_down": 0.09,
+    "c_up": 0.01,
+    "c_down": 0.12,
     "c_hold": 0.05,
     "prev": -1
    },
@@ -3212,117 +3212,117 @@
     "date": "2025-01-30",
     "outcome": -1,
     "p": [
-     0.972,
-     0.025,
+     0.963,
+     0.034,
      0.003
     ],
-    "g_up": 0.0,
-    "g_down": 0.5,
-    "g_hold": 0.04,
+    "g_up": 0.02,
+    "g_down": 0.49,
+    "g_hold": 0.08,
     "g_n": 7,
-    "c_up": 0.0,
-    "c_down": 0.29,
-    "c_hold": 0.01,
+    "c_up": 0.01,
+    "c_down": 0.27,
+    "c_hold": 0.05,
     "prev": -1
    },
    {
     "date": "2025-03-06",
     "outcome": -1,
     "p": [
-     0.567,
-     0.419,
-     0.014
+     0.448,
+     0.529,
+     0.022
     ],
-    "g_up": 0.01,
+    "g_up": 0.02,
     "g_down": 0.15,
-    "g_hold": 0.09,
+    "g_hold": 0.18,
     "g_n": 13,
-    "c_up": 0.0,
-    "c_down": 0.2,
-    "c_hold": 0.02,
+    "c_up": 0.01,
+    "c_down": 0.17,
+    "c_hold": 0.05,
     "prev": -1
    },
    {
     "date": "2025-04-17",
     "outcome": -1,
     "p": [
-     0.279,
-     0.705,
-     0.016
+     0.365,
+     0.626,
+     0.009
     ],
-    "g_up": 0.0,
-    "g_down": 0.15,
-    "g_hold": 0.04,
+    "g_up": 0.01,
+    "g_down": 0.16,
+    "g_hold": 0.1,
     "g_n": 7,
     "c_up": 0.0,
     "c_down": 0.04,
-    "c_hold": 0.0,
+    "c_hold": 0.04,
     "prev": -1
    },
    {
     "date": "2025-06-05",
     "outcome": -1,
     "p": [
-     0.124,
-     0.865,
-     0.011
+     0.179,
+     0.806,
+     0.016
     ],
-    "g_up": 0.0,
-    "g_down": 0.06,
-    "g_hold": 0.17,
+    "g_up": 0.01,
+    "g_down": 0.07,
+    "g_hold": 0.21,
     "g_n": 9,
-    "c_up": 0.0,
-    "c_down": 0.06,
-    "c_hold": 0.0,
+    "c_up": 0.01,
+    "c_down": 0.04,
+    "c_hold": 0.05,
     "prev": -1
    },
    {
     "date": "2025-07-24",
     "outcome": 0,
     "p": [
-     0.346,
-     0.644,
-     0.01
+     0.289,
+     0.699,
+     0.011
     ],
-    "g_up": 0.0,
-    "g_down": 0.1,
-    "g_hold": 0.2,
+    "g_up": 0.01,
+    "g_down": 0.08,
+    "g_hold": 0.24,
     "g_n": 15,
-    "c_up": 0.0,
-    "c_down": 0.11,
-    "c_hold": 0.29,
+    "c_up": 0.01,
+    "c_down": 0.05,
+    "c_hold": 0.31,
     "prev": -1
    },
    {
     "date": "2025-09-11",
     "outcome": 0,
     "p": [
-     0.091,
-     0.883,
-     0.027
+     0.074,
+     0.908,
+     0.018
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
+    "g_up": 0.01,
+    "g_down": 0.02,
     "g_hold": 0.37,
     "g_n": 3,
-    "c_up": 0.0,
+    "c_up": 0.01,
     "c_down": 0.01,
-    "c_hold": 0.46,
+    "c_hold": 0.41,
     "prev": 0
    },
    {
     "date": "2025-10-30",
     "outcome": 0,
     "p": [
-     0.103,
-     0.882,
+     0.071,
+     0.915,
      0.014
     ],
-    "g_up": 0.0,
+    "g_up": 0.01,
     "g_down": 0.01,
-    "g_hold": 0.29,
+    "g_hold": 0.28,
     "g_n": 9,
-    "c_up": 0.0,
+    "c_up": 0.01,
     "c_down": 0.01,
     "c_hold": 0.4,
     "prev": 0
@@ -3331,50 +3331,50 @@
     "date": "2025-12-18",
     "outcome": 0,
     "p": [
-     0.053,
-     0.938,
-     0.009
+     0.057,
+     0.931,
+     0.012
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.32,
+    "g_up": 0.02,
+    "g_down": 0.01,
+    "g_hold": 0.34,
     "g_n": 11,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.59,
+    "c_up": 0.01,
+    "c_down": 0.01,
+    "c_hold": 0.41,
     "prev": 0
    },
    {
     "date": "2026-02-05",
     "outcome": 0,
     "p": [
-     0.076,
-     0.915,
+     0.049,
+     0.942,
      0.009
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.35,
+    "g_up": 0.01,
+    "g_down": 0.01,
+    "g_hold": 0.31,
     "g_n": 3,
-    "c_up": 0.0,
-    "c_down": 0.0,
-    "c_hold": 0.41,
+    "c_up": 0.01,
+    "c_down": 0.01,
+    "c_hold": 0.38,
     "prev": 0
    },
    {
     "date": "2026-03-19",
     "outcome": 0,
     "p": [
-     0.056,
-     0.938,
-     0.006
+     0.032,
+     0.959,
+     0.009
     ],
-    "g_up": 0.0,
-    "g_down": 0.0,
-    "g_hold": 0.42,
+    "g_up": 0.01,
+    "g_down": 0.01,
+    "g_hold": 0.44,
     "g_n": 10,
-    "c_up": 0.0,
-    "c_down": 0.0,
+    "c_up": 0.01,
+    "c_down": 0.01,
     "c_hold": 0.46,
     "prev": 0
    },
@@ -3382,85 +3382,85 @@
     "date": "2026-04-30",
     "outcome": 0,
     "p": [
-     0.127,
-     0.826,
-     0.047
+     0.09,
+     0.849,
+     0.061
     ],
-    "g_up": 0.14,
-    "g_down": 0.0,
-    "g_hold": 0.05,
+    "g_up": 0.11,
+    "g_down": 0.01,
+    "g_hold": 0.17,
     "g_n": 7,
-    "c_up": 0.02,
-    "c_down": 0.0,
-    "c_hold": 0.16,
+    "c_up": 0.03,
+    "c_down": 0.01,
+    "c_hold": 0.21,
     "prev": 0
    },
    {
     "date": "2026-06-11",
     "outcome": 1,
     "p": [
-     0.027,
-     0.535,
-     0.438
+     0.031,
+     0.31,
+     0.659
     ],
-    "g_up": 0.31,
-    "g_down": 0.0,
-    "g_hold": 0.28,
+    "g_up": 0.34,
+    "g_down": 0.01,
+    "g_hold": 0.26,
     "g_n": 11,
-    "c_up": 0.25,
-    "c_down": 0.0,
-    "c_hold": 0.09,
+    "c_up": 0.37,
+    "c_down": 0.01,
+    "c_hold": 0.15,
     "prev": 0
    },
    {
     "date": "2026-07-23",
     "outcome": 0,
     "p": [
-     0.024,
-     0.407,
-     0.568
+     0.03,
+     0.427,
+     0.544
     ],
-    "g_up": 0.22,
-    "g_down": 0.0,
-    "g_hold": 0.18,
+    "g_up": 0.34,
+    "g_down": 0.01,
+    "g_hold": 0.16,
     "g_n": 10,
-    "c_up": 0.18,
-    "c_down": 0.0,
-    "c_hold": 0.01,
+    "c_up": 0.16,
+    "c_down": 0.01,
+    "c_hold": 0.15,
     "prev": 1
    },
    {
     "date": "2026-09-10",
     "outcome": 1,
     "p": [
-     0.036,
-     0.344,
-     0.621
+     0.043,
+     0.628,
+     0.329
     ],
-    "g_up": 0.3,
-    "g_down": 0.0,
-    "g_hold": 0.02,
+    "g_up": 0.4,
+    "g_down": 0.01,
+    "g_hold": 0.08,
     "g_n": 4,
-    "c_up": 0.18,
-    "c_down": 0.0,
-    "c_hold": 0.15,
+    "c_up": 0.27,
+    "c_down": 0.01,
+    "c_hold": 0.22,
     "prev": 0
    },
    {
     "date": "2026-10-29",
     "outcome": 0,
     "p": [
-     0.061,
-     0.851,
-     0.088
+     0.039,
+     0.809,
+     0.152
     ],
-    "g_up": 0.09,
-    "g_down": 0.0,
-    "g_hold": 0.08,
+    "g_up": 0.26,
+    "g_down": 0.01,
+    "g_hold": 0.07,
     "g_n": 9,
-    "c_up": 0.04,
-    "c_down": 0.0,
-    "c_hold": 0.0,
+    "c_up": 0.1,
+    "c_down": 0.01,
+    "c_hold": 0.04,
     "prev": 1
    }
   ]

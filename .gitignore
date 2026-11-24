@@ -10,6 +10,7 @@ data/processed/*
 !data/processed/tournament_log.jsonl
 !data/processed/roster_state.json
 !data/processed/guidance.jsonl
+!data/processed/guidance_council.jsonl
 !data/processed/breakeven.json
 *.log
 _*.txt

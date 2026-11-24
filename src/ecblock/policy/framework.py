@@ -67,8 +67,10 @@ def pace_state(hist: list[Meeting]) -> dict:
 
 # ---------------------------------------------------------------- feature builder
 def build_rows(meetings: list[Meeting], corpus, guidance: dict, be_data: dict,
-               hicp: dict[str, float], today: str) -> list[Row]:
+               hicp: dict[str, float], today: str, council: dict | None = None) -> list[Row]:
     core = sorted((s for s in corpus if is_core(s) and s.is_policy), key=lambda s: s.date)
+    council = council or {}
+    cdocs = sorted((s for s in corpus if s.id in council), key=lambda s: s.date)
     rows: list[Row] = []
     for k in range(1, len(meetings)):
         m, prev = meetings[k], meetings[k - 1]
@@ -124,6 +126,18 @@ def build_rows(meetings: list[Meeting], corpus, guidance: dict, be_data: dict,
             f.update(g_up=0.0, g_down=0.0, g_hold=0.0, g_large=0.0, p_acc=0.0, p_slow=0.0, p_end=0.0,
                      g_up_max=0.0, g_down_max=0.0, g_hold_max=0.0)
         f["g_n"] = len(g)
+        # council guidance: the previous meeting's statement + press-conference Q&A,
+        # and any account of it published before this meeting's quiet period
+        cg = [council[s.id] for s in cdocs
+              if (s.date == prev.date and s.source_type in ("mp_statement", "mp_qa"))
+              or (s.source_type == "mp_account" and prev.date < s.date <= hi)]
+        if cg:
+            f["c_up"] = float(np.mean([x["next"].get("hike", 0) + x["next"].get("larger_hike", 0) for x in cg]))
+            f["c_down"] = float(np.mean([x["next"].get("cut", 0) + x["next"].get("larger_cut", 0) for x in cg]))
+            f["c_hold"] = float(np.mean([x["next"].get("hold", 0) for x in cg]))
+            f["c_slow"] = float(np.mean([x["pace"].get("slow_or_pause", 0) + x["pace"].get("end_or_reverse", 0) for x in cg]))
+        else:
+            f.update(c_up=0.0, c_down=0.0, c_hold=0.0, c_slow=0.0)
         # hawkishness level + change (pairwise, core members)
         lv = [N(s.mu) for s in win if s.mu is not None]
         lv0 = [N(s.mu) for s in prev_win if s.mu is not None]
@@ -159,6 +173,7 @@ APPROACHES = {
     "Base rate": [],
     "Pace (cycle dummy)": ["due_up", "due_down", "cyc_up", "cyc_down", "early_up", "early_down"],
     "Member guidance": ["g_up", "g_down", "g_hold", "g_up_max", "g_down_max", "g_hold_max", "p_acc", "p_slow"],
+    "Council guidance": ["c_up", "c_down", "c_hold", "c_slow"],
     "Hawkishness shift": ["hawk", "d_hawk", "cyc_up", "cyc_down"],
     "Inflation vs projections": ["d_be", "hicp_gap", "cyc_up", "cyc_down"],
     "Combined": ["due_up", "due_down", "cyc_up", "cyc_down", "early_up", "early_down",
@@ -220,9 +235,14 @@ GROUPS = {
     "inflation vs projections": ["d_be", "hicp_gap"],
     "inertia (first move, pause, run length)": ["first_up", "first_down", "paused_up", "paused_down", "run_len"],
     "hawkishness shift": ["hawk", "d_hawk"],
+    "council guidance": ["c_up", "c_down", "c_hold", "c_slow"],
 }
-CORE = ["pace", "member guidance", "inflation vs projections"]
-ADDONS = ["inertia (first move, pause, run length)", "hawkishness shift"]
+# Core = what the Council and its core members actually say about the next decision.
+# Pace and inflation-vs-projections were in the core but hurt out-of-sample (pace is
+# collinear with the last decision and made calls overconfident; the breakeven sign is
+# endogenous to tightening), so they now have to earn a place as add-ons like the rest.
+CORE = ["member guidance", "council guidance"]
+ADDONS = ["pace", "inflation vs projections", "inertia (first move, pause, run length)", "hawkishness shift"]
 
 
 def _losses(rows, cols, start, how: str = "loyo"):
@@ -248,8 +268,8 @@ def _boot(a, b, n=2000, seed=0):
 
 
 def select(rows, start: str = "2013-01-01") -> dict:
-    """The baseline is "repeat the last decision". The core (pace, member guidance,
-    inflation vs projections) is kept as a bundle only if it beats that significantly;
+    """The baseline is "repeat the last decision". The core (member guidance and the
+    Council's own guidance) is kept as a bundle only if it beats that significantly;
     each add-on is kept only if it significantly lowers log loss on its own. As for the
     BoE and BoC models: leave-one-year-out predictions, paired bootstrap over meetings
     (2000 draws), 95% interval wholly below zero. The real-time (expanding-window)

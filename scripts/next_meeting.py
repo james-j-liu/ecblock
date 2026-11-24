@@ -76,13 +76,17 @@ def main():
         from ecblock.process.anonymize import Anonymizer
         from ecblock.process.roster import build_roster
         core = [s for s in corpus if gd.is_core(s) and s.is_policy and s.text and "2010-05-28" <= s.date <= today]
-        gd.classify(core, Anonymizer(build_roster([s.speaker for s in corpus])))
+        anon = Anonymizer(build_roster([s.speaker for s in corpus]))
+        gd.classify(core, anon)
+        council_docs = [s for s in corpus if gd.is_council(s) and s.text and "2010-01-01" <= s.date <= today]
+        gd.classify(council_docs, anon, decisions={m.date: m.bp for m in meetings if m.bp is not None})
     guidance = gd.load_cache()
+    council = gd.load_cache(gd.COUNCIL_CACHE)
     be_data = be_mod.load(refresh=args.refresh)
     macro = json.loads((ROOT / "site" / "macro.json").read_text(encoding="utf-8"))["series"]
     hicp = {d[:7]: v for d, v in macro["hicp_headline"]["data"]}
 
-    rows = fw.build_rows(meetings, corpus, guidance, be_data, hicp, today)
+    rows = fw.build_rows(meetings, corpus, guidance, be_data, hicp, today, council=council)
     live = rows[-1]
     assert live.meeting.date == nxt.date, (live.meeting.date, nxt.date)
     sel = fw.select(rows)
@@ -115,6 +119,19 @@ def main():
                      "score": None if s.mu is None else round((s.mu - 50) / 5, 2),
                      "next": g["next"] if g else None, "pace": g["pace"] if g else None,
                      "quote": key_quote(s.text)})
+    # the Council's own guidance: last meeting's statement + Q&A, and any account since
+    hi = min(today, nxt.quiet_start)
+    label = {"mp_statement": "ECB Governing Council — statement", "mp_qa": "ECB Governing Council — press conference Q&A",
+             "mp_account": "ECB Governing Council — account"}
+    for s in sorted((s for s in corpus if s.id in council and (
+            (s.date == prev.date and s.source_type in ("mp_statement", "mp_qa"))
+            or (s.source_type == "mp_account" and prev.date < s.date <= hi))), key=lambda s: s.date):
+        g = council[s.id]
+        docs.append({"date": s.date, "speaker": label[s.source_type], "inst": "European Central Bank",
+                     "type": "council", "title": s.title[:140], "url": s.source_url,
+                     "score": None if s.mu is None else round((s.mu - 50) / 5, 2),
+                     "next": g["next"], "pace": g["pace"], "quote": key_quote(s.text)})
+    docs.sort(key=lambda d: d["date"])
     lastp = next(m for m in reversed(meetings) if m.projection and m.bp is not None and m.date < nxt.date)
     dbe, isin = be_mod.change(be_data, lastp.date, today)
     be_ser = be_data["breakeven"].get(isin, {}) if isin else {}

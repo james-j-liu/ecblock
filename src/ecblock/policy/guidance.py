@@ -23,6 +23,7 @@ from ..roster_gc import canon, is_gc
 from ..schema import Speech
 
 CACHE = PROCESSED / "guidance.jsonl"
+COUNCIL_CACHE = PROCESSED / "guidance_council.jsonl"
 BIG5 = {"Deutsche Bundesbank", "Banque de France", "Banca d'Italia", "Banco de España",
         "De Nederlandsche Bank"}
 MAX_CHARS = 60000
@@ -43,6 +44,19 @@ CRIT_NEXT = {
     "larger_cut": "Signals a cut of 50 basis points or more, or a faster pace of easing.",
     "no_signal": "No specific guidance about the next rate decision.",
 }
+# The Council's own documents are released AT a meeting and spend most of their
+# length explaining the decision just taken, so the question must separate that
+# decision (given to the model as `decision_taken`) from what comes next.
+INSTR_NEXT_COUNCIL = (
+    "This anonymised document comes from the ECB Governing Council itself: the monetary "
+    "policy statement or press-conference Q&A released at a meeting, or the account of a "
+    "meeting. The decision taken at that meeting is given in decision_taken and is ALREADY "
+    "MADE - do not treat it as the answer. What does the document signal about the "
+    "FOLLOWING meeting's interest-rate decision? Language that rates are now at a sufficient "
+    "or appropriate level, or should be kept there for some time, signals hold; language that "
+    "further moves in the same direction are likely or needed signals another move; a purely "
+    "data-dependent, meeting-by-meeting line with no lean is no_signal."
+)
 INSTR_PACE = (
     "Relative to the ECB's current direction and pace of rate changes (whether it is "
     "currently raising, cutting or holding rates), what does the speaker signal?"
@@ -61,27 +75,54 @@ def is_core(s: Speech) -> bool:
             and (s.institution == "European Central Bank" or s.institution in BIG5))
 
 
+def is_council(s: Speech) -> bool:
+    """The Governing Council's own words: the monetary policy statement, the press
+    conference Q&A, and the account of the meeting (published ~4 weeks later)."""
+    return s.source_type in ("mp_statement", "mp_qa", "mp_account")
+
+
 def _role(s: Speech) -> str:
+    if is_council(s):
+        return {"mp_statement": "the ECB Governing Council (official monetary policy statement)",
+                "mp_qa": "the ECB President answering questions at the press conference",
+                "mp_account": "the ECB Governing Council (account of its last meeting)"}[s.source_type]
     return ("a member of the ECB Executive Board" if s.institution == "European Central Bank"
             else f"the governor of {s.institution}")
 
 
-def load_cache() -> dict[str, dict]:
-    if not CACHE.exists():
+def _decision_text(s: Speech, decisions: dict[str, int]) -> str:
+    """The decision at the meeting this document belongs to (an account belongs to
+    the latest meeting on or before its title date / publication)."""
+    dates = sorted(d for d in decisions if d <= s.date)
+    if not dates:
+        return "unknown"
+    bp = decisions[dates[-1]]
+    what = f"raised the key interest rates by {bp}bp" if bp > 0 else (
+        f"lowered the key interest rates by {-bp}bp" if bp < 0 else "kept the key interest rates unchanged")
+    return f"At the meeting this document refers to, the Governing Council {what}."
+
+
+def load_cache(path=CACHE) -> dict[str, dict]:
+    if not path.exists():
         return {}
     out = {}
-    for line in CACHE.open(encoding="utf-8"):
+    for line in path.open(encoding="utf-8"):
         if line.strip():
             r = json.loads(line)
             out[r["id"]] = r
     return out
 
 
-def classify(docs: list[Speech], anonymizer, concurrency: int = 12, limit: int | None = None) -> int:
-    """Classify core docs not yet cached; append results. Returns # newly classified."""
+def classify(docs: list[Speech], anonymizer, concurrency: int = 12, limit: int | None = None,
+             decisions: dict[str, int] | None = None) -> int:
+    """Classify docs not yet cached; append results. Returns # newly classified.
+    Council documents (is_council) go to their own cache and prompt; `decisions`
+    maps meeting date -> bp change so the model is told the decision just taken."""
     from ..judge.jev import JevJudge
     jev = JevJudge()
-    done = load_cache()
+    council = bool(docs) and is_council(docs[0])
+    path = COUNCIL_CACHE if council else CACHE
+    done = load_cache(path)
     todo = [s for s in docs if s.id not in done][:limit]
     if not todo:
         return 0
@@ -91,11 +132,15 @@ def classify(docs: list[Speech], anonymizer, concurrency: int = 12, limit: int |
         if len(text) > MAX_CHARS:
             h = MAX_CHARS * 2 // 3
             text = text[:h] + "\n[...]\n" + text[-(MAX_CHARS - h):]
+        state = {"speaker_role": _role(s), "document_type": s.source_type, "text": text}
+        if council:
+            state["decision_taken"] = _decision_text(s, decisions or {})
         res = jev._post({
             "model": jev.model,
-            "state": {"speaker_role": _role(s), "document_type": s.source_type, "text": text},
+            "state": state,
             "questions": {
-                "next_decision": {"type": "choice", "instructions": INSTR_NEXT, "criteria": CRIT_NEXT},
+                "next_decision": {"type": "choice", "criteria": CRIT_NEXT,
+                                  "instructions": INSTR_NEXT_COUNCIL if council else INSTR_NEXT},
                 "pace": {"type": "choice", "instructions": INSTR_PACE, "criteria": CRIT_PACE},
             }})
         jev.cost += float(res.get("usage", {}).get("cost") or 0)
@@ -106,7 +151,7 @@ def classify(docs: list[Speech], anonymizer, concurrency: int = 12, limit: int |
                 "pace": {k: round(float(v), 4) for k, v in a["pace"]["probabilities"].items()}}
 
     n = 0
-    with ThreadPoolExecutor(max_workers=concurrency) as ex, CACHE.open("a", encoding="utf-8") as f:
+    with ThreadPoolExecutor(max_workers=concurrency) as ex, path.open("a", encoding="utf-8") as f:
         futs = [ex.submit(one, s) for s in todo]
         for fut in as_completed(futs):
             try:

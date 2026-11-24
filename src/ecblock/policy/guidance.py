@@ -1,4 +1,5 @@
-"""Explicit forward guidance from core Governing Council members, read by Jev.
+"""Explicit forward guidance from core Governing Council members, read by a decision
+model (Drex Max Finance; Jev 1.13 before November 2026).
 
 "Core" = the Executive Board plus the governors of the five largest NCBs
 (Bundesbank, Banque de France, Banca d'Italia, Banco de España, De Nederlandsche
@@ -8,7 +9,7 @@ Bank). For each of their speeches/interviews, Jev answers two typed questions:
 and returns a probability for each option, so a vague remark contributes a soft
 vote rather than a forced label.
 
-The text is anonymised and carries no date, which limits (but cannot remove) the
+The text is anonymised, with years masked, and carries no date, which limits (but cannot remove) the
 chance that the model answers from memory of what the ECB later did. Results are
 cached by document id in data/processed/guidance.jsonl, so each document is read
 once; the daily job only classifies new ones.
@@ -16,6 +17,7 @@ once; the daily job only classifies new ones.
 from __future__ import annotations
 
 import json
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from ..config import PROCESSED
@@ -27,6 +29,11 @@ COUNCIL_CACHE = PROCESSED / "guidance_council.jsonl"
 BIG5 = {"Deutsche Bundesbank", "Banque de France", "Banca d'Italia", "Banco de España",
         "De Nederlandsche Bank"}
 MAX_CHARS = 60000
+# Live reader: Drex Max Finance. On the MPC project it was the only decision model
+# significantly better than Jev 1.13 through the forecast model (read blind). Texts here
+# were already anonymised and undated; years are now masked too.
+LIVE_MODEL = "nace-ai/drex-max-finance"
+_YEAR = re.compile(r"\b(19[89]\d|20[0-4]\d)\b")
 
 INSTR_NEXT = (
     "This is an anonymised speech or interview by a member of the ECB Governing Council. "
@@ -114,21 +121,22 @@ def load_cache(path=CACHE) -> dict[str, dict]:
 
 
 def classify(docs: list[Speech], anonymizer, concurrency: int = 12, limit: int | None = None,
-             decisions: dict[str, int] | None = None) -> int:
+             decisions: dict[str, int] | None = None, model: str | None = None) -> int:
     """Classify docs not yet cached; append results. Returns # newly classified.
     Council documents (is_council) go to their own cache and prompt; `decisions`
     maps meeting date -> bp change so the model is told the decision just taken."""
     from ..judge.jev import JevJudge
-    jev = JevJudge()
+    jev = JevJudge(model=model or LIVE_MODEL)
     council = bool(docs) and is_council(docs[0])
     path = COUNCIL_CACHE if council else CACHE
     done = load_cache(path)
-    todo = [s for s in docs if s.id not in done][:limit]
+    # re-read anything read by another model (older records carry none: Jev 1.13)
+    todo = [s for s in docs if s.id not in done or done[s.id].get("model", "typesafe/jev-1.13") != jev.model][:limit]
     if not todo:
         return 0
 
     def one(s: Speech) -> dict:
-        text = anonymizer.text_of(s)
+        text = _YEAR.sub("[YEAR]", anonymizer.text_of(s))
         if len(text) > MAX_CHARS:
             h = MAX_CHARS * 2 // 3
             text = text[:h] + "\n[...]\n" + text[-(MAX_CHARS - h):]
@@ -146,7 +154,7 @@ def classify(docs: list[Speech], anonymizer, concurrency: int = 12, limit: int |
         jev.cost += float(res.get("usage", {}).get("cost") or 0)
         a = res["answers"]
         return {"id": s.id, "date": s.date, "speaker": canon(s.speaker), "inst": s.institution,
-                "type": s.source_type,
+                "type": s.source_type, "model": jev.model, "served_model": res.get("model"),
                 "next": {k: round(float(v), 4) for k, v in a["next_decision"]["probabilities"].items()},
                 "pace": {k: round(float(v), 4) for k, v in a["pace"]["probabilities"].items()}}
 

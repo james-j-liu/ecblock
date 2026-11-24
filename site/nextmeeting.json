@@ -85,6 +85,16 @@
   },
   "addons": [
    {
+    "group": "market pricing",
+    "log_loss": 0.2985,
+    "change": 0.0095,
+    "ci95": [
+     -0.0195,
+     0.0412
+    ],
+    "kept": false
+   },
+   {
     "group": "pace",
     "log_loss": 0.3327,
     "change": 0.0437,
@@ -313,6 +323,42 @@
    "accuracy": 0.86,
    "n_turn": 24,
    "log_loss_turn": 0.921
+  },
+  {
+   "name": "Market pricing (1y/2y Bund vs deposit rate)",
+   "features": [
+    "last_up",
+    "last_down",
+    "m_y1",
+    "m_y2",
+    "m_dy1"
+   ],
+   "probs": {
+    "cut": 0.0205,
+    "hold": 0.8761,
+    "hike": 0.1034
+   },
+   "n": 121,
+   "log_loss": 0.517,
+   "brier": 0.311,
+   "accuracy": 0.785,
+   "n_turn": 24,
+   "log_loss_turn": 1.215
+  },
+  {
+   "name": "Symmetric (move, then direction)",
+   "features": "symmetric",
+   "probs": {
+    "cut": 0.0639,
+    "hold": 0.1611,
+    "hike": 0.775
+   },
+   "n": 121,
+   "log_loss": 0.355,
+   "brier": 0.192,
+   "accuracy": 0.86,
+   "n_turn": 24,
+   "log_loss_turn": 0.915
   },
   {
    "name": "Hawkishness shift",

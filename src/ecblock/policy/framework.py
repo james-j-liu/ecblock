@@ -80,7 +80,8 @@ def pace_state(hist: list[Meeting]) -> dict:
 
 # ---------------------------------------------------------------- feature builder
 def build_rows(meetings: list[Meeting], corpus, guidance: dict, be_data: dict,
-               hicp: dict[str, float], today: str, council: dict | None = None) -> list[Row]:
+               hicp: dict[str, float], today: str, council: dict | None = None,
+               dfr: list | None = None) -> list[Row]:
     core = sorted((s for s in corpus if is_core(s) and s.is_policy), key=lambda s: s.date)
     council = council or {}
     cdocs = sorted((s for s in corpus if s.id in council), key=lambda s: s.date)
@@ -170,6 +171,18 @@ def build_rows(meetings: list[Meeting], corpus, guidance: dict, be_data: dict,
             f["d_be"] = dbe if dbe is not None else 0.0
         else:
             f["d_be"] = 0.0
+        # market pricing: 1y / 2y Bund yields over the deposit rate (the path the market
+        # expects), and the repricing of the 1y yield since the previous meeting
+        nom = be_data.get("nominal", {})
+        y1, y2 = be_mod._at(nom.get("1", {}), hi), be_mod._at(nom.get("2", {}), hi)
+        y1p = be_mod._at(nom.get("1", {}), prev.date)
+        d_now = [v for d, v in (dfr or []) if d <= hi]
+        if y1 is not None and d_now:
+            f["m_y1"] = y1 - d_now[-1]
+            f["m_y2"] = (y2 - d_now[-1]) if y2 is not None else f["m_y1"]
+            f["m_dy1"] = (y1 - y1p) if y1p is not None else 0.0
+        else:
+            f.update(m_y1=0.0, m_y2=0.0, m_dy1=0.0)
         projm = next((x for x in reversed(meetings[:k]) if x.projection and x.proj), None)
         months = sorted(mo for mo in hicp if _month_end(mo) < m.date)
         f["hicp_gap"] = 0.0
@@ -194,6 +207,8 @@ APPROACHES = {
     "Pace (cycle dummy)": ["due_up", "due_down", "cyc_up", "cyc_down", "early_up", "early_down"],
     "Member guidance": ["g_up", "g_down", "g_hold", "g_up_max", "g_down_max", "g_hold_max", "p_acc", "p_slow"],
     "Council guidance": ["c_up", "c_down", "c_hold", "c_slow"],
+    "Market pricing (1y/2y Bund vs deposit rate)": ["last_up", "last_down", "m_y1", "m_y2", "m_dy1"],
+    "Symmetric (move, then direction)": "symmetric",   # see _fit_predict_sym
     "Hawkishness shift": ["hawk", "d_hawk", "cyc_up", "cyc_down"],
     "Inflation vs projections": ["d_be", "hicp_gap", "cyc_up", "cyc_down"],
     "Combined": ["due_up", "due_down", "cyc_up", "cyc_down", "early_up", "early_down",
@@ -205,7 +220,50 @@ APPROACHES = {
 }
 
 
-def _fit_predict(train: list[Row], test: Row, cols: list[str], C: float = 0.5) -> np.ndarray:
+# ---------------------------------------------------------------- symmetric model
+# Hikes and cuts share mechanics, but the sample has only ~14 hikes and ~18 cuts, and
+# each cycle type is learnt mostly from its own rare examples (e.g. no back-to-back
+# hikes before 2022). The symmetric model pools them: stage 1 asks "will they move?"
+# from how strongly guidance points to a move in EITHER direction; stage 2 asks
+# "which way?" from the sign of that guidance, fitted on mirrored examples so up
+# and down are treated alike. Selected via the name "symmetric" in an approach.
+SYMMETRIC = "symmetric"
+
+
+def _sym_move(f: dict) -> list[float]:
+    lean = (f["g_up"] - f["g_down"]) + (f["c_up"] - f["c_down"])
+    d = 1 if lean > 0 else -1 if lean < 0 else (f["cyc_up"] - f["cyc_down"])
+    moved = f["last_up"] - f["last_down"]
+    return [f["g_up"] + f["g_down"], max(f["g_up_max"], f["g_down_max"]), f["g_hold"], f["g_hold_max"],
+            f["c_up"] + f["c_down"], f["c_hold"], f["c_slow"], f["p_slow"],
+            float(moved != 0), float(moved != 0 and moved == d)]
+
+
+def _sym_dir(f: dict) -> list[float]:
+    return [f["g_up"] - f["g_down"], f["c_up"] - f["c_down"], f["g_up_max"] - f["g_down_max"],
+            float(f["last_up"] - f["last_down"]), float(f["cyc_up"] - f["cyc_down"])]
+
+
+def _fit_predict_sym(train: list[Row], test: Row, C: float = 0.5) -> np.ndarray:
+    from sklearn.linear_model import LogisticRegression
+    y = np.array([r.meeting.outcome for r in train])
+    X = np.array([_sym_move(r.feats) for r in train], float)
+    mu, sd = X.mean(0), X.std(0)
+    sd[sd == 0] = 1
+    mv = LogisticRegression(C=C, max_iter=3000).fit((X - mu) / sd, y != 0)
+    p_move = mv.predict_proba(((np.array(_sym_move(test.feats)) - mu) / sd)[None])[0][1]
+    Z = np.array([_sym_dir(r.feats) for r in train if r.meeting.outcome != 0], float)
+    yz = np.array([r.meeting.outcome > 0 for r in train if r.meeting.outcome != 0])
+    dr = LogisticRegression(C=C, max_iter=3000, fit_intercept=False).fit(np.vstack([Z, -Z]), np.r_[yz, ~yz])
+    p_up = dr.predict_proba(np.array(_sym_dir(test.feats))[None])[0][1]
+    out = np.array([p_move * (1 - p_up), 1 - p_move, p_move * p_up])
+    out = 0.98 * out + 0.02 / 3
+    return out / out.sum()
+
+
+def _fit_predict(train: list[Row], test: Row, cols, C: float = 0.5) -> np.ndarray:
+    if cols == SYMMETRIC:
+        return _fit_predict_sym(train, test, C)
     y = np.array([r.meeting.outcome for r in train])
     counts = np.array([(y == c).sum() for c in CLASSES], float)
     if not cols or len(set(y)) < 2:
@@ -257,13 +315,15 @@ GROUPS = {
     "hawkishness shift": ["hawk", "d_hawk"],
     "council guidance": ["c_up", "c_down", "c_hold", "c_slow"],
     "leadership guidance (President + chief economist)": ["l_up", "l_down", "l_hold", "l_n"],
+    "market pricing": ["m_y1", "m_y2", "m_dy1"],
 }
 # Core = what the Council and its core members actually say about the next decision.
 # Pace and inflation-vs-projections were in the core but hurt out-of-sample (pace is
 # collinear with the last decision and made calls overconfident; the breakeven sign is
 # endogenous to tightening), so they now have to earn a place as add-ons like the rest.
 CORE = ["member guidance", "council guidance"]
-ADDONS = ["pace", "inflation vs projections", "inertia (first move, pause, run length)", "hawkishness shift"]
+ADDONS = ["market pricing", "pace", "inflation vs projections", "inertia (first move, pause, run length)",
+          "hawkishness shift"]
 
 
 def _losses(rows, cols, start, how: str = "loyo"):

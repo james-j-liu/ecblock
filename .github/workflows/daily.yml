@@ -4,6 +4,14 @@ on:
   schedule:
     - cron: "30 6 * * *"        # 06:30 UTC daily
   workflow_dispatch: {}          # allow manual runs from the Actions tab
+  push:                          # code / page changes go live without waiting a day
+    branches: [main]             # (the bot's own data commits use GITHUB_TOKEN, which
+    paths:                       #  never triggers workflows, so this cannot loop)
+      - "site/index.html"
+      - "scripts/**"
+      - "src/**"
+      - "config.yaml"
+      - "requirements.txt"
 
 permissions:
   contents: write                # commit refreshed corpus/log/data back to the repo

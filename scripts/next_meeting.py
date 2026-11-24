@@ -86,7 +86,8 @@ def main():
     macro = json.loads((ROOT / "site" / "macro.json").read_text(encoding="utf-8"))["series"]
     hicp = {d[:7]: v for d, v in macro["hicp_headline"]["data"]}
 
-    rows = fw.build_rows(meetings, corpus, guidance, be_data, hicp, today, council=council)
+    dfr = sorted((d, v) for d, v in macro["deposit_rate"]["data"])
+    rows = fw.build_rows(meetings, corpus, guidance, be_data, hicp, today, council=council, dfr=dfr)
     live = rows[-1]
     assert live.meeting.date == nxt.date, (live.meeting.date, nxt.date)
     sel = fw.select(rows)

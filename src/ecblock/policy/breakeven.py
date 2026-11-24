@@ -62,7 +62,7 @@ def fetch() -> dict:
     nominal = {}
     for y in range(1, 16):
         key = f"D.I.ZST.ZI.EUR.S1311.B.A604.R{y:02d}XX.R.A.A._Z._Z.A"
-        nominal[y] = _series(f"{API}/BBSIS/{key}?format=sdmx_csv&detail=dataonly&startPeriod=2012-01-01")
+        nominal[y] = _series(f"{API}/BBSIS/{key}?format=sdmx_csv&detail=dataonly&startPeriod=2010-01-01")
     real = {isin: _series(f"{API}/BBSSY/D.REN.EUR..{isin}.?format=sdmx_csv&detail=dataonly&startPeriod=2012-01-01")
             for isin in LINKERS}
     be: dict[str, dict[str, float]] = {}
@@ -78,7 +78,9 @@ def fetch() -> dict:
                 continue
             nom = n_lo + (n_hi - n_lo) * (tau - lo)
             be.setdefault(isin, {})[d] = round(nom - ry, 3)
-    data = {"fetched": dt.date.today().isoformat(), "maturity": LINKERS, "breakeven": be}
+    # short nominal yields (1y, 2y) are kept as a market-pricing proxy for the rate path
+    data = {"fetched": dt.date.today().isoformat(), "maturity": LINKERS, "breakeven": be,
+            "nominal": {"1": nominal[1], "2": nominal[2]}}
     CACHE.write_text(json.dumps(data, indent=0), encoding="utf-8")
     return data
 

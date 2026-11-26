@@ -1,12 +1,12 @@
 {
- "generated": "2026-11-25",
+ "generated": "2026-11-26",
  "next_meeting": {
   "date": "2026-12-17",
   "projection": true,
   "quiet_start": "2026-12-10",
   "window": [
    "2026-10-29",
-   "2026-11-25"
+   "2026-11-26"
   ],
   "last_decision": 0,
   "last_decision_date": "2026-10-29"
@@ -14,29 +14,29 @@
  "headline": {
   "model": "Selected (significance-checked)",
   "probs": {
-   "cut_large": 0.0031,
-   "cut": 0.0369,
-   "hold": 0.2981,
-   "hike": 0.6103,
-   "hike_large": 0.0516
+   "cut_large": 0.0016,
+   "cut": 0.0191,
+   "hold": 0.1334,
+   "hike": 0.7799,
+   "hike_large": 0.0659
   },
   "probs3": {
-   "cut": 0.04,
-   "hold": 0.2981,
-   "hike": 0.6619
+   "cut": 0.0207,
+   "hold": 0.1334,
+   "hike": 0.8459
   },
   "range80": {
    "cut": [
-    0.014,
-    0.08
+    0.008,
+    0.053
    ],
    "hold": [
-    0.131,
-    0.628
+    0.057,
+    0.421
    ],
    "hike": [
-    0.304,
-    0.844
+    0.525,
+    0.931
    ]
   }
  },
@@ -126,11 +126,11 @@
    },
    {
     "group": "hawkishness shift",
-    "log_loss": 0.3253,
+    "log_loss": 0.3252,
     "change": 0.0202,
     "ci95": [
-     0.0011,
-     0.0431
+     0.001,
+     0.043
     ],
     "kept": false
    }
@@ -313,9 +313,9 @@
     "c_slow"
    ],
    "probs": {
-    "cut": 0.0661,
-    "hold": 0.287,
-    "hike": 0.6469
+    "cut": 0.025,
+    "hold": 0.1122,
+    "hike": 0.8628
    },
    "n": 121,
    "log_loss": 0.27,
@@ -334,9 +334,9 @@
     "m_dy1"
    ],
    "probs": {
-    "cut": 0.0225,
-    "hold": 0.8841,
-    "hike": 0.0934
+    "cut": 0.0198,
+    "hold": 0.8706,
+    "hike": 0.1096
    },
    "n": 121,
    "log_loss": 0.517,
@@ -349,9 +349,9 @@
    "name": "Symmetric (move, then direction)",
    "features": "symmetric",
    "probs": {
-    "cut": 0.0653,
-    "hold": 0.1403,
-    "hike": 0.7944
+    "cut": 0.0622,
+    "hold": 0.0782,
+    "hike": 0.8597
    },
    "n": 121,
    "log_loss": 0.323,
@@ -370,7 +370,7 @@
    ],
    "probs": {
     "cut": 0.0644,
-    "hold": 0.3021,
+    "hold": 0.302,
     "hike": 0.6336
    },
    "n": 121,
@@ -389,9 +389,9 @@
     "cyc_down"
    ],
    "probs": {
-    "cut": 0.0239,
-    "hold": 0.1002,
-    "hike": 0.8758
+    "cut": 0.0245,
+    "hold": 0.1039,
+    "hike": 0.8716
    },
    "n": 121,
    "log_loss": 0.545,
@@ -423,9 +423,9 @@
     "hicp_gap"
    ],
    "probs": {
-    "cut": 0.0085,
-    "hold": 0.0495,
-    "hike": 0.9421
+    "cut": 0.0084,
+    "hold": 0.05,
+    "hike": 0.9416
    },
    "n": 121,
    "log_loss": 0.426,
@@ -453,9 +453,9 @@
     "hicp_gap"
    ],
    "probs": {
-    "cut": 0.0332,
-    "hold": 0.2368,
-    "hike": 0.73
+    "cut": 0.0328,
+    "hold": 0.2391,
+    "hike": 0.7281
    },
    "n": 121,
    "log_loss": 0.417,
@@ -483,9 +483,9 @@
     "c_slow"
    ],
    "probs": {
-    "cut": 0.04,
-    "hold": 0.2981,
-    "hike": 0.6619
+    "cut": 0.0207,
+    "hold": 0.1334,
+    "hike": 0.8459
    },
    "n": 121,
    "log_loss": 0.321,
@@ -738,6 +738,31 @@
       "no_signal": 0.9752
      },
      "quote": "When we look at fiscal flows, budget deficits have increased across much of the region in recent years, reflecting a combination of higher social and investment spending, rising public sector wage bills, higher interest rate expenditure and, increasingly, greater defence spending. … [ 10 ] At the same time, geopolitical tensions can disrupt key trade routes and increase the costs and uncertainty associated with complex global value chains."
+    },
+    {
+     "date": "2026-11-26",
+     "speaker": "ECB Governing Council — account",
+     "inst": "European Central Bank",
+     "type": "council",
+     "title": "Account: Meeting of 28-29 October 2026",
+     "url": "https://www.ecb.europa.eu/press/accounts/2026/html/ecb.mg261126~ccf28c8071.en.html",
+     "score": 1.7,
+     "next": {
+      "larger_hike": 0.0063,
+      "hike": 0.795,
+      "hold": 0.1363,
+      "cut": 0.0029,
+      "larger_cut": 0.0018,
+      "no_signal": 0.0577
+     },
+     "pace": {
+      "accelerate": 0.0489,
+      "maintain": 0.2078,
+      "slow_or_pause": 0.7044,
+      "end_or_reverse": 0.0105,
+      "no_signal": 0.0284
+     },
+     "quote": "Euro area risk-free rates had stabilised and, at longer tenors, had even declined since the September meeting, while US rates had risen across maturities on the back of higher real rates. … On the one hand, high current inflation and elevated short‑term inflation expectations were seen as implying lower real interest rates at shorter maturities and a more accommodative policy stance than nominal rates alone would suggest, despite the tightening in overall financial conditions."
     }
    ],
    "g_up": 0.32289999999999996,
@@ -753,10 +778,10 @@
   },
   "inflation": {
    "proj_date": "2026-09-10",
-   "d_be": -0.519,
+   "d_be": -0.506,
    "isin": "DE0001030559",
    "maturity": "2030-04-15",
-   "be_now": 1.837,
+   "be_now": 1.85,
    "be_at_proj": 2.356,
    "series": [
     [
@@ -1322,6 +1347,10 @@
     [
      "2026-11-25",
      1.837
+    ],
+    [
+     "2026-11-26",
+     1.85
     ]
    ],
    "proj": {
